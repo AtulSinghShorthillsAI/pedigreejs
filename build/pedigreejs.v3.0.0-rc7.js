@@ -3135,6 +3135,7 @@ var pedigreejs = (function (exports) {
 	  table += "<tr><td style='text-align:right'>Name</td><td><input class='form-control' type='text' id='id_display_name' name='display_name' value=" + (d.data.display_name ? d.data.display_name : "") + "></td></tr>";
 	  table += "<tr><td style='text-align:right'>Age</td><td><input class='form-control' type='number' id='id_age' min='0' max='120' name='age' style='width:7em' value=" + (d.data.age ? d.data.age : "") + "></td></tr>";
 	  table += "<tr><td style='text-align:right'>Year Of Birth</td><td><input class='form-control' type='number' id='id_yob' min='1900' max='2050' name='yob' style='width:7em' value=" + (d.data.yob ? d.data.yob : "") + "></td></tr>";
+	  table += "<tr><td style='text-align:right'>Year Of Death</td><td><input class='form-control' type='number' id='id_yod' min='1900' max='2050' name='yob' style='width:7em' value=" + (d.data.yod ? d.data.yod : "") + "></td></tr>";
 	  table += '<tr><td colspan="2" id="id_sex">' + '<label class="radio-inline"><input type="radio" name="sex" value="M" ' + (d.data.sex === 'M' ? "checked" : "") + '>Male</label>' + '<label class="radio-inline"><input type="radio" name="sex" value="F" ' + (d.data.sex === 'F' ? "checked" : "") + '>Female</label>' + '<label class="radio-inline"><input type="radio" name="sex" value="U">Unknown</label>' + '</td></tr>';
 
 	  // alive status = 0; dead status = 1
@@ -3163,16 +3164,20 @@ var pedigreejs = (function (exports) {
 	    table += "<tr><td style='text-align:right'>" + capitaliseFirstLetter(v.type.replace("_", " ")) + disease_colour + "&nbsp;</td><td>" + "<input class='form-control' id='id_" + v.type + "_diagnosis_age_0' max='110' min='0' name='" + v.type + "_diagnosis_age_0' style='width:5em' type='number' value='" + (diagnosis_age !== undefined ? diagnosis_age : "") + "'></td></tr>";
 	  });
 	  table += '<tr><td colspan="2" style="line-height:1px;"></td></tr>';
-	  $.each(d.data, function (k, v) {
-	    if ($.inArray(k, exclude) === -1) {
-	      let kk = capitaliseFirstLetter(k);
-	      if (v === true || v === false) {
-	        table += "<tr><td style='text-align:right'>" + kk + "&nbsp;</td><td><input type='checkbox' id='id_" + k + "' name='" + k + "' value=" + v + " " + (v ? "checked" : "") + "></td></tr>";
-	      } else if (k.length > 0) {
-	        table += "<tr><td style='text-align:right'>" + kk + "&nbsp;</td><td><input type='text' id='id_" + k + "' name='" + k + "' value=" + v + "></td></tr>";
-	      }
-	    }
-	  });
+	  // $.each(d.data, function(k, v) {
+	  // 	if($.inArray(k, exclude) === -1) {
+	  // 		let kk = capitaliseFirstLetter(k);
+	  // 		if(v === true || v === false) {
+	  // 			table += "<tr><td style='text-align:right'>"+kk+"&nbsp;</td><td><input type='checkbox' id='id_" + k + "' name='" +
+	  // 					k+"' value="+v+" "+(v ? "checked" : "")+"></td></tr>";
+	  // 		} else if(k.length > 0){
+	  // 			table += "<tr><td style='text-align:right'>"+kk+"&nbsp;</td><td><input type='text' id='id_" +
+	  // 					k+"' name='"+k+"' value="+v+"></td></tr>";
+	  // 		}
+	  // 	}
+	  // });
+
+	  table += "<tr><td style='text-align:right'>Additional Information</td><td><input class='form-control' type='text' id='id_additional_information' name='additional_information' value=" + (d.data.additional_information ? d.data.additional_information : "") + "></td></tr>";
 	  table += "</table>";
 	  $('#node_properties').html(table);
 	  $('#node_properties').dialog('open');
