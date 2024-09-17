@@ -3793,6 +3793,14 @@ var pedigreejs = (function (exports) {
 	  let node = ped.selectAll(".node").data(nodes.descendants()).enter().append("g").attr("transform", function (d, _i) {
 	    return "translate(" + d.x + "," + d.y + ")";
 	  });
+	  const customLineSymbol = {
+	    draw(context) {
+	      const length = 40;
+	      context.moveTo(0, 0);
+	      context.lineTo(-length / 2, 0);
+	      context.lineTo(length / 2, 0);
+	    }
+	  };
 
 	  // provide a border to the node
 	  node.filter(function (d) {
@@ -3802,6 +3810,9 @@ var pedigreejs = (function (exports) {
 	  }).attr("d", d3.symbol().size(function (_d) {
 	    return opts.symbol_size * opts.symbol_size + 2;
 	  }).type(function (d) {
+	    if (d.data.noChild) {
+	      return customLineSymbol;
+	    }
 	    if (d.data.miscarriage || d.data.termination) return d3.symbolTriangle;
 	    return d.data.sex === "F" ? d3.symbolCircle : d3.symbolSquare;
 	  })).style("stroke", function (d) {
@@ -3823,6 +3834,9 @@ var pedigreejs = (function (exports) {
 	    if (d.data.hidden) return opts.symbol_size * opts.symbol_size / 5;
 	    return opts.symbol_size * opts.symbol_size;
 	  }).type(function (d) {
+	    if (d.data.noChild) {
+	      return customLineSymbol;
+	    }
 	    if (d.data.miscarriage || d.data.termination) return d3.symbolTriangle;
 	    return d.data.sex === "F" ? d3.symbolCircle : d3.symbolSquare;
 	  }));
