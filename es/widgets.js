@@ -419,6 +419,9 @@ function openEditDialog(opts, d) {
 	table += "<tr><td style='text-align:right'>Year Of Birth</td><td><input class='form-control' type='number' id='id_yob' min='1900' max='2050' name='yob' style='width:7em' value="+
 		(d.data.yob ? d.data.yob : "")+"></td></tr>";
 
+	table += "<tr><td style='text-align:right'>Year Of Death</td><td><input class='form-control' type='number' id='id_yod' min='1900' max='2050' name='yob' style='width:7em' value="+
+		(d.data.yod ? d.data.yod : "")+"></td></tr>";
+
 	table += '<tr><td colspan="2" id="id_sex">' +
 			 '<label class="radio-inline"><input type="radio" name="sex" value="M" '+(d.data.sex === 'M' ? "checked" : "")+'>Male</label>' +
 			 '<label class="radio-inline"><input type="radio" name="sex" value="F" '+(d.data.sex === 'F' ? "checked" : "")+'>Female</label>' +
@@ -468,18 +471,21 @@ function openEditDialog(opts, d) {
 	});
 
 	table += '<tr><td colspan="2" style="line-height:1px;"></td></tr>';
-	$.each(d.data, function(k, v) {
-		if($.inArray(k, exclude) === -1) {
-			let kk = capitaliseFirstLetter(k);
-			if(v === true || v === false) {
-				table += "<tr><td style='text-align:right'>"+kk+"&nbsp;</td><td><input type='checkbox' id='id_" + k + "' name='" +
-						k+"' value="+v+" "+(v ? "checked" : "")+"></td></tr>";
-			} else if(k.length > 0){
-				table += "<tr><td style='text-align:right'>"+kk+"&nbsp;</td><td><input type='text' id='id_" +
-						k+"' name='"+k+"' value="+v+"></td></tr>";
-			}
-		}
-    });
+	// $.each(d.data, function(k, v) {
+	// 	if($.inArray(k, exclude) === -1) {
+	// 		let kk = capitaliseFirstLetter(k);
+	// 		if(v === true || v === false) {
+	// 			table += "<tr><td style='text-align:right'>"+kk+"&nbsp;</td><td><input type='checkbox' id='id_" + k + "' name='" +
+	// 					k+"' value="+v+" "+(v ? "checked" : "")+"></td></tr>";
+	// 		} else if(k.length > 0){
+	// 			table += "<tr><td style='text-align:right'>"+kk+"&nbsp;</td><td><input type='text' id='id_" +
+	// 					k+"' name='"+k+"' value="+v+"></td></tr>";
+	// 		}
+	// 	}
+    // });
+
+	table += "<tr><td style='text-align:right'>Additional Information</td><td><input class='form-control' type='text' id='id_additional_information' name='additional_information' value="+
+			(d.data.additional_information ? d.data.additional_information : "")+"></td></tr>";
 	table += "</table>";
 
 	$('#node_properties').html(table);
