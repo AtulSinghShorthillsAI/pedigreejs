@@ -406,7 +406,7 @@ function openEditDialog(opts, d) {
 	    width: ($(window).width() > 400 ? 450 : $(window).width()- 30)
 	});
 
-	let table = "<table id='person_details' class='table'>";
+	let table = "<table id='person_details' class='table' width='600' height='400' border='0'>";
 
 	table += "<tr><td style='text-align:right'>Unique ID</td><td><input class='form-control' type='text' id='id_name' name='name' value="+
 	(d.data.name ? d.data.name : "")+"></td></tr>";
