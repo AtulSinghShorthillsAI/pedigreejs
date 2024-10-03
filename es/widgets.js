@@ -406,18 +406,25 @@ function openEditDialog(opts, d) {
 	    width: ($(window).width() > 400 ? 450 : $(window).width()- 30)
 	});
 
-	let table = "<table id='person_details' class='table'>";
+	let table = "<table id='person_details' class='table' width='600' height='400' border='0'>";
 
 	table += "<tr><td style='text-align:right'>Unique ID</td><td><input class='form-control' type='text' id='id_name' name='name' value="+
 	(d.data.name ? d.data.name : "")+"></td></tr>";
-	table += "<tr><td style='text-align:right'>Name</td><td><input class='form-control' type='text' id='id_display_name' name='display_name' value="+
-			(d.data.display_name ? d.data.display_name : "")+"></td></tr>";
 
-	table += "<tr><td style='text-align:right'>Age</td><td><input class='form-control' type='number' id='id_age' min='0' max='120' name='age' style='width:7em' value="+
-			(d.data.age ? d.data.age : "")+"></td></tr>";
+
+	table += "<tr><td style='text-align:right'>First name</td><td><input class='form-control' type='text' id='id_display_name' name='display_name' value="+
+			(d.data.display_name ? d.data.display_name : "")+"></td><td style='text-align:right'>Last name</td><td><input class='form-control' type='text' id='id_last_name' name='last_name' value="+
+			(d.data.last_name ? d.data.last_name : "")+"></td></tr>";
 
 	table += "<tr><td style='text-align:right'>Year Of Birth</td><td><input class='form-control' type='number' id='id_yob' min='1900' max='2050' name='yob' style='width:7em' value="+
-		(d.data.yob ? d.data.yob : "")+"></td></tr>";
+		(d.data.yob ? d.data.yob : "")+"></td> <td style='text-align:right'>Age</td><td><input class='form-control' type='number' id='id_age' min='0' max='120' name='age' style='width:7em' value="+
+			(d.data.age ? d.data.age : "")+"></td></tr>";
+
+	
+
+	table += "<tr><td style='text-align:right'>Year Of Death</td><td><input class='form-control' type='number' id='id_yod' min='1900' max='2050' name='yob' style='width:7em' value="+
+		(d.data.yod ? d.data.yod : "")+"></td><td style='text-align:right'>Age of death</td><td><input class='form-control' type='number' id='id_age_age_of_death' min='0' max='120' name='age_of_death' style='width:7em' value="+
+			(d.data.age_of_death ? d.data.age_of_death : "")+"></td></tr>";
 
 	table += '<tr><td colspan="2" id="id_sex">' +
 			 '<label class="radio-inline"><input type="radio" name="sex" value="M" '+(d.data.sex === 'M' ? "checked" : "")+'>Male</label>' +
@@ -429,22 +436,20 @@ function openEditDialog(opts, d) {
 	table += '<tr><td colspan="2" id="id_status">' +
 			 '<label class="checkbox-inline"><input type="radio" name="status" value="0" '+(parseInt(d.data.status) === 0 ? "checked" : "")+'>&thinsp;Alive</label>' +
 			 '<label class="checkbox-inline"><input type="radio" name="status" value="1" '+(parseInt(d.data.status) === 1 ? "checked" : "")+'>&thinsp;Deceased</label>' +
+			 '<label class="checkbox-inline"><input type="radio" name="status" value="1" '+(parseInt(d.data.status) === 1 ? "checked" : "")+'>&thinsp;Donot Know</label>' +
 			 '</td></tr>';
 	$("#id_status input[value='"+d.data.status+"']").prop('checked', true);
 
-	// switches
-	let switches = ["adopted_in", "adopted_out", "miscarriage", "stillbirth", "termination"];
-	table += '<tr><td colspan="2"><strong>Reproduction:</strong></td></tr>';
-	table += '<tr><td colspan="2">';
-	for(let iswitch=0; iswitch<switches.length; iswitch++){
-		let attr = switches[iswitch];
-		if(iswitch === 2)
-			table += '</td></tr><tr><td colspan="2">';
-		table +=
-		 '<label class="checkbox-inline"><input type="checkbox" id="id_'+attr +
-		    '" name="'+attr+'" value="0" '+(d.data[attr] ? "checked" : "")+'>&thinsp;' +
-		    capitaliseFirstLetter(attr.replace('_', ' '))+'</label>'
-	}
+
+
+	let switches = ["adopted_in", "adopted_out", "miscarriage", "stillbirth ", "termination", "Abortion"];
+	table += '<tr><td colspan="2"><strong>Reproduction:</strong></td></tr><tr><td colspan="2">' +
+  	switches.map((attr, i) => (i === 2 || i === 4 ? '</td></tr><tr><td colspan="2">' : '') + 
+    '<label class="checkbox-inline" style="white-space: nowrap;"><input type="checkbox" id="id_'+attr+
+    '" name="'+attr+'" value="0" '+(d.data[attr] ? "checked" : "")+'>&thinsp;' +
+    capitaliseFirstLetter(attr.replace('_', ' ')) + '</label>'
+  ).join('') + '</td></tr>';
+
 	table += '</td></tr>';
 
 	//
@@ -468,19 +473,25 @@ function openEditDialog(opts, d) {
 	});
 
 	table += '<tr><td colspan="2" style="line-height:1px;"></td></tr>';
-	$.each(d.data, function(k, v) {
-		if($.inArray(k, exclude) === -1) {
-			let kk = capitaliseFirstLetter(k);
-			if(v === true || v === false) {
-				table += "<tr><td style='text-align:right'>"+kk+"&nbsp;</td><td><input type='checkbox' id='id_" + k + "' name='" +
-						k+"' value="+v+" "+(v ? "checked" : "")+"></td></tr>";
-			} else if(k.length > 0){
-				table += "<tr><td style='text-align:right'>"+kk+"&nbsp;</td><td><input type='text' id='id_" +
-						k+"' name='"+k+"' value="+v+"></td></tr>";
-			}
-		}
-    });
-	table += "</table>";
+	// $.each(d.data, function(k, v) {
+	// 	if($.inArray(k, exclude) === -1) {
+	// 		let kk = capitaliseFirstLetter(k);
+	// 		if(v === true || v === false) {
+	// 			table += "<tr><td style='text-align:right'>"+kk+"&nbsp;</td><td><input type='checkbox' id='id_" + k + "' name='" +
+	// 					k+"' value="+v+" "+(v ? "checked" : "")+"></td></tr>";
+	// 		} else if(k.length > 0){
+	// 			table += "<tr><td style='text-align:right'>"+kk+"&nbsp;</td><td><input type='text' id='id_" +
+	// 					k+"' name='"+k+"' value="+v+"></td></tr>";
+	// 		}
+	// 	}
+    // });
+
+	table += '<tr><td colspan="2"><strong>Additional Information:</strong></td></tr>';
+	table += '<tr><td colspan="2"><textarea class="form-control" id="id_additional_information" name="additional_information" rows="5" cols="30" maxlength="250">' +
+        (d.data.additional_information ? d.data.additional_information : "") +
+        '</textarea></td></tr>';
+table += '</table>';
+
 
 	$('#node_properties').html(table);
 	$('#node_properties').dialog('open');
