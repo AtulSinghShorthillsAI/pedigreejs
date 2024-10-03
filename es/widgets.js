@@ -157,7 +157,7 @@ export function addWidgets(opts, node) {
 		.style("stroke", "black")
 		.style("stroke-width", 0.7)
 		.style("opacity", 0)
-		.attr("fill", "lightgrey");
+		.attr("fill", "grey");
 
 	// widgets
 	let fx = function(_d) {return off - (0.75*opts.symbol_size);};
@@ -294,6 +294,7 @@ export function addWidgets(opts, node) {
 		d3.select(this).select('rect').style("opacity", 0.2);
 		d3.select(this).selectAll('.addchild, .addsibling, .addpartner, .addparents, .delete, .settings').style("opacity", 1);
 		d3.select(this).selectAll('.indi_details').style("opacity", 0);
+		d3.select(this).selectAll('.ped_label').style("opacity", 0);
 
 		setLineDragPosition(opts.symbol_size-10, 0, opts.symbol_size-2, 0, d.x+","+(d.y+2));
 	})
@@ -305,6 +306,7 @@ export function addWidgets(opts, node) {
 		if(highlight.indexOf(d) === -1)
 			d3.select(this).select('rect').style("opacity", 0);
 		d3.select(this).selectAll('.indi_details').style("opacity", 1);
+		d3.select(this).selectAll('.ped_label').style("opacity", 1);
 		// hide popup if it looks like the mouse is moving north
 		let xcoord = d3.pointer(d)[0];
 		let ycoord = d3.pointer(d)[1];

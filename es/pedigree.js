@@ -76,8 +76,8 @@ export function build(options) {
 		.attr("height", "100%")
 		.attr("rx", 6)
 		.attr("ry", 6)
-		.style("stroke", "darkgrey")
-		.style("fill", opts.background) // or none
+		.style("stroke", "white")
+		.style("fill", "white") // or none
 		.style("stroke-width", 1);
 
 	let ped = svg.append("g")
@@ -138,10 +138,10 @@ export function build(options) {
 						return d3.symbolTriangle;
 					return d.data.sex === "F" ? d3.symbolCircle : d3.symbolSquare;}))
 		.style("stroke", function (d) {
-			return d.data.age && d.data.yob && !d.data.exclude ? "#303030" : "grey";
+			return d.data.age && d.data.yob && !d.data.exclude ? "#303030" : "black";
 		})
 		.style("stroke-width", function (d) {
-			return d.data.age && d.data.yob && !d.data.exclude ? ".3em" : ".1em";
+			return d.data.age && d.data.yob && !d.data.exclude ? ".3em" : ".2em";
 		})
 		.style("stroke-dasharray", function (d) {return !d.data.exclude ? null : ("3, 3");})
 		.style("fill", "none");

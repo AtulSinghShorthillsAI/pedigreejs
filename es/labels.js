@@ -101,10 +101,14 @@ function addLabel(opts, node, fx, fy, ftext, class_label, labels) {
 		return !d.data.hidden && (!labels || node_has_label(d, labels));
 	}).append("text")
 	.attr("class", (class_label ? class_label + ' ped_label' : 'ped_label'))
-	.attr("x", fx)
-	.attr("y", fy)
+	.attr("x", function() {
+        return class_label === 'indi_details' ? fx+30 : fx-5;
+    })
+    .attr("y", function() {
+        return class_label === 'indi_details' ?  45 : fy+35;
+    })
 	.attr("font-family", opts.font_family)
-	.attr("font-size", opts.font_size)
+	.attr("font-size", "0.80em")
 	.attr("font-weight", opts.font_weight)
 	.text(ftext);
 }
