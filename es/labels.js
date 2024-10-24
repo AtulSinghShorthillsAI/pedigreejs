@@ -14,6 +14,12 @@ export function addLabels(opts, node) {
 					return ('display_name' in d.data ? d.data.display_name : d.data.name) + '  ' + d.data.id;
 				return 'display_name' in d.data ? d.data.display_name : '';}, undefined, ['display_name']);
 
+	addLabel(opts, node, -(0.4 * opts.symbol_size), -((0.1 * opts.symbol_size)-13),
+			function(d) {
+				if(opts.DEBUG)
+					return ('last_name' in d.data ? d.data.last_name : d.data.name) + '  ' + d.data.id;
+				return 'last_name' in d.data ? d.data.last_name : '';}, undefined, ['last_name']);
+
 	let font_size = parseInt(getPx(opts)) + 4;
 	// display age/yob label first
 	for(let ilab=0; ilab<opts.labels.length; ilab++) {
@@ -101,10 +107,14 @@ function addLabel(opts, node, fx, fy, ftext, class_label, labels) {
 		return !d.data.hidden && (!labels || node_has_label(d, labels));
 	}).append("text")
 	.attr("class", (class_label ? class_label + ' ped_label' : 'ped_label'))
-	.attr("x", fx)
-	.attr("y", fy)
+	.attr("x", function() {
+        return class_label === 'indi_details' ? fx+30 : fx-5;
+    })
+    .attr("y", function() {
+        return class_label === 'indi_details' ?  45 : fy+35;
+    })
 	.attr("font-family", opts.font_family)
-	.attr("font-size", opts.font_size)
+	.attr("font-size", "0.80em")
 	.attr("font-weight", opts.font_weight)
 	.text(ftext);
 }

@@ -2902,7 +2902,7 @@ var pedigreejs = (function (exports) {
 	    return -0.75 * opts.symbol_size;
 	  }).attr("y", function (_d) {
 	    return -opts.symbol_size;
-	  }).attr("width", 1.5 * opts.symbol_size + 'px').attr("height", 2 * opts.symbol_size + 'px').style("stroke", "black").style("stroke-width", 0.7).style("opacity", 0).attr("fill", "lightgrey");
+	  }).attr("width", 1.5 * opts.symbol_size + 'px').attr("height", 2 * opts.symbol_size + 'px').style("stroke", "black").style("stroke-width", 0.7).style("opacity", 0).attr("fill", "grey");
 
 	  // widgets
 	  let fx = function (_d) {
@@ -3046,12 +3046,14 @@ var pedigreejs = (function (exports) {
 	    d3.select(this).select('rect').style("opacity", 0.2);
 	    d3.select(this).selectAll('.addchild, .addsibling, .addpartner, .addparents, .delete, .settings').style("opacity", 1);
 	    d3.select(this).selectAll('.indi_details').style("opacity", 0);
+	    d3.select(this).selectAll('.ped_label').style("opacity", 0);
 	    setLineDragPosition(opts.symbol_size - 10, 0, opts.symbol_size - 2, 0, d.x + "," + (d.y + 2));
 	  }).on("mouseout", function (d) {
 	    if (dragging) return;
 	    d3.select(this).selectAll('.addchild, .addsibling, .addpartner, .addparents, .delete, .settings').style("opacity", 0);
 	    if (highlight.indexOf(d) === -1) d3.select(this).select('rect').style("opacity", 0);
 	    d3.select(this).selectAll('.indi_details').style("opacity", 1);
+	    d3.select(this).selectAll('.ped_label').style("opacity", 1);
 	    // hide popup if it looks like the mouse is moving north
 	    let xcoord = d3.pointer(d)[0];
 	    let ycoord = d3.pointer(d)[1];
@@ -3574,7 +3576,11 @@ var pedigreejs = (function (exports) {
 	function addLabel(opts, node, fx, fy, ftext, class_label, labels) {
 	  node.filter(function (d) {
 	    return !d.data.hidden && (!labels || node_has_label(d, labels));
-	  }).append("text").attr("class", class_label ? class_label + ' ped_label' : 'ped_label').attr("x", fx).attr("y", fy).attr("font-family", opts.font_family).attr("font-size", opts.font_size).attr("font-weight", opts.font_weight).text(ftext);
+	  }).append("text").attr("class", class_label ? class_label + ' ped_label' : 'ped_label').attr("x", function () {
+	    return class_label === 'indi_details' ? fx + 30 : fx - 5;
+	  }).attr("y", function () {
+	    return class_label === 'indi_details' ? 45 : fy + 35;
+	  }).attr("font-family", opts.font_family).attr("font-size", "0.80em").attr("font-weight", opts.font_weight).text(ftext);
 	}
 
 	// get height in pixels
@@ -3752,7 +3758,7 @@ var pedigreejs = (function (exports) {
 	  if (opts.DEBUG) print_opts(opts);
 	  let svg_dimensions = get_svg_dimensions(opts);
 	  let svg = d3.select("#" + opts.targetDiv).append("svg:svg").attr("width", svg_dimensions.width).attr("height", svg_dimensions.height);
-	  svg.append("rect").attr("width", "100%").attr("height", "100%").attr("rx", 6).attr("ry", 6).style("stroke", "darkgrey").style("fill", opts.background) // or none
+	  svg.append("rect").attr("width", "100%").attr("height", "100%").attr("rx", 6).attr("ry", 6).style("stroke", "white").style("fill", "white") // or none
 	  .style("stroke-width", 1);
 	  let ped = svg.append("g").attr("class", "diagram");
 	  let top_level = $.map(opts.dataset, function (val, _i) {
@@ -3805,9 +3811,9 @@ var pedigreejs = (function (exports) {
 	    if (d.data.miscarriage || d.data.termination) return d3.symbolTriangle;
 	    return d.data.sex === "F" ? d3.symbolCircle : d3.symbolSquare;
 	  })).style("stroke", function (d) {
-	    return d.data.age && d.data.yob && !d.data.exclude ? "#303030" : "grey";
+	    return d.data.age && d.data.yob && !d.data.exclude ? "#303030" : "black";
 	  }).style("stroke-width", function (d) {
-	    return d.data.age && d.data.yob && !d.data.exclude ? ".3em" : ".1em";
+	    return d.data.age && d.data.yob && !d.data.exclude ? ".3em" : ".2em";
 	  }).style("stroke-dasharray", function (d) {
 	    return !d.data.exclude ? null : "3, 3";
 	  }).style("fill", "none");

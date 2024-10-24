@@ -56,6 +56,11 @@
 			text-align: center;
 			padding: 0 20px;
 		}
+		.ui-dialog.ui-corner-all.ui-widget.ui-widget-content.ui-front.ui-draggable.ui-resizable {
+    width: 600px !important;
+    height: 570px !important;
+}
+
 	</style>
 
 	<script type="text/javascript">
@@ -65,7 +70,7 @@
 		var svg_width = (parent_width > 750 ? (parent_width*8/12 - margin) : parent_width- margin);
 
 		var dataset = [
-			{"name": "m11", "display_name": "John",  "sex": "M", "diabetes_diagnosis_age": 55, "top_level": true},
+			{"name": "m11", "display_name": "Tushar","last_name": "Agrawal",  "sex": "M", "top_level": true},
 			{"name": "f11", "display_name": "Jane",  "sex": "F", "status": 1, "top_level": true},
 			{"name": "m12", "display_name": "Jack", "sex": "M", "top_level": true},
 			{"name": "f12", "display_name": "Jill", "sex": "F", "top_level": true},
@@ -105,7 +110,7 @@
 	<h2>Example 1</h2>
 	<label class="btn">
 		<input id="load" type="file" style="display: none;"/>Load
-	</label>	
+	</label>
 	<label class="btn">
 		<input id="save" type="button" style="display: none;"/>Save
 	</label>
