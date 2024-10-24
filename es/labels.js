@@ -14,6 +14,12 @@ export function addLabels(opts, node) {
 					return ('display_name' in d.data ? d.data.display_name : d.data.name) + '  ' + d.data.id;
 				return 'display_name' in d.data ? d.data.display_name : '';}, undefined, ['display_name']);
 
+	addLabel(opts, node, -(0.4 * opts.symbol_size), -((0.1 * opts.symbol_size)-13),
+			function(d) {
+				if(opts.DEBUG)
+					return ('last_name' in d.data ? d.data.last_name : d.data.name) + '  ' + d.data.id;
+				return 'last_name' in d.data ? d.data.last_name : '';}, undefined, ['last_name']);
+
 	let font_size = parseInt(getPx(opts)) + 4;
 	// display age/yob label first
 	for(let ilab=0; ilab<opts.labels.length; ilab++) {
