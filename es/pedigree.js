@@ -76,8 +76,8 @@ export function build(options) {
 		.attr("height", "100%")
 		.attr("rx", 6)
 		.attr("ry", 6)
-		.style("stroke", "darkgrey")
-		.style("fill", opts.background) // or none
+		.style("stroke", "white")
+		.style("fill", "white") // or none
 		.style("stroke-width", 1);
 
 	let ped = svg.append("g")
@@ -109,10 +109,10 @@ export function build(options) {
 	let flattenNodes = nodes.descendants();
 
 	// check the number of visible nodes equals the size of the pedigree dataset
-	let vis_nodes = $.map(opts.dataset, function(p, _i){return p.hidden ? null : p;});
-	if(vis_nodes.length !== opts.dataset.length) {
-		throw utils.create_err('NUMBER OF VISIBLE NODES DIFFERENT TO NUMBER IN THE DATASET');
-	}
+	// let vis_nodes = $.map(opts.dataset, function(p, _i){return p.hidden ? null : p;});
+	// if(vis_nodes.length !== opts.dataset.length) {
+	// 	throw utils.create_err('NUMBER OF VISIBLE NODES DIFFERENT TO NUMBER IN THE DATASET');
+	// }
 
 	utils.adjust_coords(opts, nodes, flattenNodes);
 
@@ -126,7 +126,14 @@ export function build(options) {
 					.attr("transform", function(d, _i) {
 						return "translate(" + d.x + "," + d.y + ")";
 					});
-
+	
+					const customLineSymbol = {
+						draw(context,) {
+							const length = 40
+							context.moveTo(0, 0);
+							context.lineTo(-length/2, 0);
+							context.lineTo(length/2, 0);
+							}};
 	// provide a border to the node
 	node.filter(function (d) {return !d.data.hidden;})
 		.append("path")
@@ -134,14 +141,17 @@ export function build(options) {
 		.attr("transform", function(d) {return !has_gender(d.data.sex) && !(d.data.miscarriage || d.data.termination) ? "rotate(45)" : "";})
 		.attr("d", d3.symbol().size(function(_d) { return (opts.symbol_size * opts.symbol_size) + 2;})
 				.type(function(d) {
+					if(d.data.noChild){
+                        return customLineSymbol
+                    }
 					if(d.data.miscarriage || d.data.termination)
 						return d3.symbolTriangle;
 					return d.data.sex === "F" ? d3.symbolCircle : d3.symbolSquare;}))
 		.style("stroke", function (d) {
-			return d.data.age && d.data.yob && !d.data.exclude ? "#303030" : "grey";
+			return d.data.age && d.data.yob && !d.data.exclude ? "#303030" : "black";
 		})
 		.style("stroke-width", function (d) {
-			return d.data.age && d.data.yob && !d.data.exclude ? ".3em" : ".1em";
+			return d.data.age && d.data.yob && !d.data.exclude ? ".3em" : ".2em";
 		})
 		.style("stroke-dasharray", function (d) {return !d.data.exclude ? null : ("3, 3");})
 		.style("fill", "none");
@@ -158,6 +168,9 @@ export function build(options) {
 				return opts.symbol_size * opts.symbol_size;
 			})
 			.type(function(d) {
+				if(d.data.noChild){
+					return customLineSymbol
+				}
 				if(d.data.miscarriage || d.data.termination)
 					return d3.symbolTriangle;
 				return d.data.sex === "F" ? d3.symbolCircle :d3.symbolSquare;}));
