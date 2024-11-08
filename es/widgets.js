@@ -354,8 +354,7 @@ function drag_handle(opts) {
 		if(last_mouseover &&
 		   dragging.data.name !== last_mouseover.data.name &&
 		   dragging.data.sex  !== last_mouseover.data.sex) {
-			// make partners
-			let child = {"name": utils.makeid(4), "sex": 'U',
+			let child = {"name": utils.makeid(4), "sex": 'U',"hidden":true,
 				     "mother": (dragging.data.sex === 'F' ? dragging.data.name : last_mouseover.data.name),
 			         "father": (dragging.data.sex === 'F' ? last_mouseover.data.name : dragging.data.name)};
 			let newdataset = utils.copy_dataset(opts.dataset);
@@ -420,8 +419,8 @@ function openEditDialog(opts, d) {
     (d.data.yob ? d.data.yob : "")+"></td> <td style='text-align:right'>Age</td><td><input class='form-control' type='number' id='id_age' min='0' max='120' name='age' style='width:7em' value="+
     (d.data.age ? d.data.age : "")+"></td></tr>";
 
-	table += "<tr><td style='text-align:right'>Year Of Death</td><td><input class='form-control' type='number' id='id_yod' min='1900' max='2050' name='yob' style='width:7em' value="+
-		(d.data.yod ? d.data.yod : "")+"></td><td style='text-align:right'>Age of death</td><td><input class='form-control' type='number' id='id_age_age_of_death' min='0' max='120' name='age_of_death' style='width:7em' value="+
+	table += "<tr><td style='text-align:right'>Year Of Death</td><td><input class='form-control' type='number' id='id_yod' min='1900' max='2050' name='yod' style='width:7em' value="+
+    (d.data.yod ? d.data.yod : "")+"></td><td style='text-align:right'>Age of death</td><td><input class='form-control' type='number' id='id_age_age_of_death' min='0' max='120' name='age_of_death' style='width:7em' value="+
 		(d.data.age_of_death ? d.data.age_of_death : "")+"></td></tr>";
 		table += '<tr><td colspan="2" id="id_sex">' +
 			 '<label class="radio-inline"><input type="radio" name="sex" value="M" '+(d.data.sex === 'M' ? "checked" : "")+'>Male</label>' +
@@ -474,9 +473,8 @@ function openEditDialog(opts, d) {
 
 	table += '<tr><td colspan="2" style="line-height:1px;"></td></tr>';
 	
-	table += '<tr><td colspan="2"><strong>Additional Information:</strong></td></tr>';
-	table += '<tr><td colspan="2"><textarea class="form-control" id="id_additional_information" name="additional_information" rows="5" cols="30" maxlength="250">' +
-        (d.data.additional_information ? d.data.additional_information : "") +
+	table += "<tr><td style='text-align:right; padding-right: 20px;'><strong>Additional Info:</strong></td><td><input class='form-control' type='text' id='id_additional_information' name='additional_information' value="+
+    (d.data.additional_information ? d.data.additional_information : "")+"></td></tr>";
         '</textarea></td></tr>';
 	table += '</table>';
 	$('#node_properties').html(table);
