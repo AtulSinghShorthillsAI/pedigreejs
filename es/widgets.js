@@ -157,7 +157,7 @@ export function addWidgets(opts, node) {
 		.style("stroke", "black")
 		.style("stroke-width", 0.7)
 		.style("opacity", 0)
-		.attr("fill", "lightgrey");
+		.attr("fill", "grey");
 
 	// widgets
 	let fx = function(_d) {return off - (0.75*opts.symbol_size);};
@@ -294,6 +294,7 @@ export function addWidgets(opts, node) {
 		d3.select(this).select('rect').style("opacity", 0.2);
 		d3.select(this).selectAll('.addchild, .addsibling, .addpartner, .addparents, .delete, .settings').style("opacity", 1);
 		d3.select(this).selectAll('.indi_details').style("opacity", 0);
+		d3.select(this).selectAll('.ped_label').style("opacity", 0);
 
 		setLineDragPosition(opts.symbol_size-10, 0, opts.symbol_size-2, 0, d.x+","+(d.y+2));
 	})
@@ -305,6 +306,7 @@ export function addWidgets(opts, node) {
 		if(highlight.indexOf(d) === -1)
 			d3.select(this).select('rect').style("opacity", 0);
 		d3.select(this).selectAll('.indi_details').style("opacity", 1);
+		d3.select(this).selectAll('.ped_label').style("opacity", 1);
 		// hide popup if it looks like the mouse is moving north
 		let xcoord = d3.pointer(d)[0];
 		let ycoord = d3.pointer(d)[1];
@@ -352,8 +354,7 @@ function drag_handle(opts) {
 		if(last_mouseover &&
 		   dragging.data.name !== last_mouseover.data.name &&
 		   dragging.data.sex  !== last_mouseover.data.sex) {
-			// make partners
-			let child = {"name": utils.makeid(4), "sex": 'U',
+			let child = {"name": utils.makeid(4), "sex": 'U',"hidden":true,
 				     "mother": (dragging.data.sex === 'F' ? dragging.data.name : last_mouseover.data.name),
 			         "father": (dragging.data.sex === 'F' ? last_mouseover.data.name : dragging.data.name)};
 			let newdataset = utils.copy_dataset(opts.dataset);
@@ -403,28 +404,29 @@ function openEditDialog(opts, d) {
 	$('#node_properties').dialog({
 	    autoOpen: false,
 	    title: d.data.display_name,
-	    width: ($(window).width() > 400 ? 450 : $(window).width()- 30)
+		width: ($(window).width() > 800 ? 450 : $(window).width()- 30)
 	});
+	let table = "<table id='person_details' class='table' width='600' height='500' border='0'>";
 
-	let table = "<table id='person_details' class='table'>";
 
-	table += "<tr><td style='text-align:right'>Unique ID</td><td><input class='form-control' type='text' id='id_name' name='name' value="+
-	(d.data.name ? d.data.name : "")+"></td></tr>";
-	table += "<tr><td style='text-align:right'>Name</td><td><input class='form-control' type='text' id='id_display_name' name='display_name' value="+
-			(d.data.display_name ? d.data.display_name : "")+"></td></tr>";
+	table += "<tr><td style='text-align:right; padding-right: 26px;'>Unique ID</td><td><input class='form-control' type='text' id='id_name' name='name' value="+
+    (d.data.name ? d.data.name : "")+"></td></tr>";
+	table += "<tr><td style='text-align:right; padding-right: 26px;'>First name</td><td><input class='form-control' type='text' id='id_display_name' name='display_name' value="+
+	(d.data.display_name ? d.data.display_name : "")+"></td><td style='text-align:right'>Last name</td><td><input class='form-control' type='text' id='id_last_name' name='last_name' value="+
+	(d.data.last_name ? d.data.last_name : "")+"></td></tr>";
 
-	table += "<tr><td style='text-align:right'>Age</td><td><input class='form-control' type='number' id='id_age' min='0' max='120' name='age' style='width:7em' value="+
-			(d.data.age ? d.data.age : "")+"></td></tr>";
+	table += "<tr><td style='text-align:right; padding-right: 20px;'>Year Of Birth</td><td><input class='form-control' type='number' id='id_yob' min='1900' max='2050' name='yob' style='width:7em' value="+
+    (d.data.yob ? d.data.yob : "")+"></td> <td style='text-align:right'>Age</td><td><input class='form-control' type='number' id='id_age' min='0' max='120' name='age' style='width:7em' value="+
+    (d.data.age ? d.data.age : "")+"></td></tr>";
 
-	table += "<tr><td style='text-align:right'>Year Of Birth</td><td><input class='form-control' type='number' id='id_yob' min='1900' max='2050' name='yob' style='width:7em' value="+
-		(d.data.yob ? d.data.yob : "")+"></td></tr>";
-
-	table += '<tr><td colspan="2" id="id_sex">' +
+	table += "<tr><td style='text-align:right'>Year Of Death</td><td><input class='form-control' type='number' id='id_yod' min='1900' max='2050' name='yod' style='width:7em' value="+
+    (d.data.yod ? d.data.yod : "")+"></td><td style='text-align:right'>Age of death</td><td><input class='form-control' type='number' id='id_age_age_of_death' min='0' max='120' name='age_of_death' style='width:7em' value="+
+		(d.data.age_of_death ? d.data.age_of_death : "")+"></td></tr>";
+		table += '<tr><td colspan="2" id="id_sex">' +
 			 '<label class="radio-inline"><input type="radio" name="sex" value="M" '+(d.data.sex === 'M' ? "checked" : "")+'>Male</label>' +
 			 '<label class="radio-inline"><input type="radio" name="sex" value="F" '+(d.data.sex === 'F' ? "checked" : "")+'>Female</label>' +
 			 '<label class="radio-inline"><input type="radio" name="sex" value="U">Unknown</label>' +
 			 '</td></tr>';
-
 	// alive status = 0; dead status = 1
 	table += '<tr><td colspan="2" id="id_status">' +
 			 '<label class="checkbox-inline"><input type="radio" name="status" value="0" '+(parseInt(d.data.status) === 0 ? "checked" : "")+'>&thinsp;Alive</label>' +
@@ -433,18 +435,20 @@ function openEditDialog(opts, d) {
 	$("#id_status input[value='"+d.data.status+"']").prop('checked', true);
 
 	// switches
-	let switches = ["adopted_in", "adopted_out", "miscarriage", "stillbirth", "termination"];
-	table += '<tr><td colspan="2"><strong>Reproduction:</strong></td></tr>';
-	table += '<tr><td colspan="2">';
-	for(let iswitch=0; iswitch<switches.length; iswitch++){
-		let attr = switches[iswitch];
-		if(iswitch === 2)
-			table += '</td></tr><tr><td colspan="2">';
-		table +=
-		 '<label class="checkbox-inline"><input type="checkbox" id="id_'+attr +
-		    '" name="'+attr+'" value="0" '+(d.data[attr] ? "checked" : "")+'>&thinsp;' +
-		    capitaliseFirstLetter(attr.replace('_', ' '))+'</label>'
-	}
+	table += "<tr><td style='text-align:left; padding-right:10px;'><strong>Father</strong></td><td><input class='form-control' type='text' id='id_father' name='father' value='" +
+    (d.data.father ? d.data.father : "") + "'></td></tr>";
+	table += "<tr><td style='text-align:left; padding-right:10px;'><strong>Mother</strong></td><td><input class='form-control' type='text' id='id_mother' name='mother' value='" +
+    (d.data.mother ? d.data.mother : "") + "'></td></tr>";	
+	table += "<tr><td style='text-align:left; padding-right:10px;'><strong>No_parents</strong></td><td><input class='form-control' type='text' id='id_noparents' name='noparents' value='" +
+    (d.data.noparents ? d.data.noparents : "") + "'></td></tr>";
+
+	let switches = ["adopted_in", "adopted_out", "miscarriage", "stillbirth ", "termination", "Abortion"];
+	table += '<tr><td colspan="2"><strong>Reproduction:</strong></td></tr><tr><td colspan="2">' +
+  	switches.map((attr, i) => (i === 2 || i === 4 ? '</td></tr><tr><td colspan="2">' : '') + 
+    '<label class="checkbox-inline" style="white-space: nowrap;"><input type="checkbox" id="id_'+attr+
+    '" name="'+attr+'" value="0" '+(d.data[attr] ? "checked" : "")+'>&thinsp;' +
+    capitaliseFirstLetter(attr.replace('_', ' ')) + '</label>'
+  ).join('') + '</td></tr>';
 	table += '</td></tr>';
 
 	//
@@ -468,20 +472,11 @@ function openEditDialog(opts, d) {
 	});
 
 	table += '<tr><td colspan="2" style="line-height:1px;"></td></tr>';
-	$.each(d.data, function(k, v) {
-		if($.inArray(k, exclude) === -1) {
-			let kk = capitaliseFirstLetter(k);
-			if(v === true || v === false) {
-				table += "<tr><td style='text-align:right'>"+kk+"&nbsp;</td><td><input type='checkbox' id='id_" + k + "' name='" +
-						k+"' value="+v+" "+(v ? "checked" : "")+"></td></tr>";
-			} else if(k.length > 0){
-				table += "<tr><td style='text-align:right'>"+kk+"&nbsp;</td><td><input type='text' id='id_" +
-						k+"' name='"+k+"' value="+v+"></td></tr>";
-			}
-		}
-    });
-	table += "</table>";
-
+	
+	table += "<tr><td style='text-align:right; padding-right: 20px;'><strong>Additional Info:</strong></td><td><input class='form-control' type='text' id='id_additional_information' name='additional_information' value="+
+    (d.data.additional_information ? d.data.additional_information : "")+"></td></tr>";
+        '</textarea></td></tr>';
+	table += '</table>';
 	$('#node_properties').html(table);
 	$('#node_properties').dialog('open');
 
@@ -670,7 +665,7 @@ export function addpartner(opts, dataset, name) {
 	let partner = addsibling(dataset, tree_node.data, tree_node.data.sex === 'F' ? 'M' : 'F', tree_node.data.sex === 'F');
 	partner.noparents = true;
 
-	let child = {"name": utils.makeid(4), "sex": "M"};
+	let child = {"name": utils.makeid(4), "sex": "M","hidden": true};
 	child.mother = (tree_node.data.sex === 'F' ? tree_node.data.name : partner.name);
 	child.father = (tree_node.data.sex === 'F' ? partner.name : tree_node.data.name);
 

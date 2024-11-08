@@ -65,13 +65,17 @@
 		var svg_width = (parent_width > 750 ? (parent_width*8/12 - margin) : parent_width- margin);
 
 		var dataset = [
-			{"name": "m11", "display_name": "John",  "sex": "M", "diabetes_diagnosis_age": 55, "top_level": true},
-			{"name": "f11", "display_name": "Jane",  "sex": "F", "status": 1, "top_level": true},
-			{"name": "m12", "display_name": "Jack", "sex": "M", "top_level": true},
-			{"name": "f12", "display_name": "Jill", "sex": "F", "top_level": true},
-			{"name": "m21", "display_name": "Jim", "sex": "M", "mother": "f11", "father": "m11", "age": 56},
-			{"name": "f21", "display_name": "Jan", "sex": "F", "mother": "f12", "father": "m12", "age": 63},
-			{"name": "ch1", "display_name": "Ana", "sex": "F", "mother": "f21", "father": "m21", "proband": true, "age": 25}
+            {"sex": "F", "name": "1", "level": "0", "partner": "2", "top_level": "true"}, 
+            {"sex": "M", "name": "2", "level": "0", "partner": "1", "top_level": "true"}, 
+            {"sex": "F", "name": "3", "level": "1", "father": "2", "mother": "1"},
+             {"sex": "F", "name": "4", "level": "1", "father": "2", "mother": "1", "partner": "5", "proband": "true"}, 
+             {"sex": "M", "name": "5", "level": "1", "father": "2", "mother": "1", "partner": "4", "noparents": "true"}, 
+             {"sex": "F", "name": "6", "level": "2", "father": "5", "mother": "4", "partner": "7"}, 
+             {"sex": "M", "name": "7", "level": "2", "father": "5", "mother": "4", "partner": "6", "noparents": "true"}, 
+             {"sex": "F", "name": "8", "father": "7", "noChild": "true", "mother": "6", "display_name": ""}
+        
+    
+            
 		];
 		var opts = {
 			'targetDiv': 'ped',
