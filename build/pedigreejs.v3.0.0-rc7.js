@@ -697,41 +697,219 @@ var pedigreejs = (function (exports) {
 	        // hidden nodes
 	        let father = getNodeByName(flattenNodes, node.data.father.name);
 	        let mother = getNodeByName(flattenNodes, node.data.mother.name);
-	        let xmid = (father.x + mother.x) / 2;
-	        if (!overlap(opts, root.descendants(), xmid, node.depth, [node.data.name])) {
-	          node.x = xmid; // centralise parent nodes
-	          let diff = node.x - xmid;
-	          if (node.children.length === 2 && (node.children[0].data.hidden || node.children[1].data.hidden)) {
-	            if (!(node.children[0].data.hidden && node.children[1].data.hidden)) {
-	              let child1 = node.children[0].data.hidden ? node.children[1] : node.children[0];
-	              let child2 = node.children[0].data.hidden ? node.children[0] : node.children[1];
-	              if ((child1.x < child2.x && xmid < child2.x || child1.x > child2.x && xmid > child2.x) && !overlap(opts, root.descendants(), xmid, child1.depth, [child1.data.name])) {
-	                child1.x = xmid;
-	              }
-	            }
-	          } else if (node.children.length === 1 && !node.children[0].data.hidden) {
-	            if (!overlap(opts, root.descendants(), xmid, node.children[0].depth, [node.children[0].data.name])) node.children[0].x = xmid;
+	        adjustConnection(node, father, mother);
+	      }
+	    }
+	  }
+	  function adjustConnection(node, father, mother) {
+	    /*
+	    		Previous Logic -> place hidden parent node at the midpoint of the two parents ie father.x + mother.x/2
+	    		Obviously, this doesn't take into account the positions of the children which leads to kinks and irregular connections.
+	    		We replace this logic with 
+	    		hidden parent node = midpoint of all the real children ie children with hidden false and noparents also false (or not existing)
+	    		*/
+	    let xReal = 0;
+	    let nReal = 0;
+	    node.children.forEach(child => {
+	      if (!child.data.hidden && !child.data.noparents) {
+	        xReal = xReal + child.x;
+	        nReal++;
+	      }
+	    });
+	    let xmid = xReal / nReal;
+	    /*
+	    This logic handles the situation where the hidden parent coordinate lies
+	    i) outside the two parents
+	    ii) close to the two parents (leading to non-aesthetic lines)
+	    To handle the first, we just compare the coordinates of xmid with those of the real parents.
+	    To handle the second, we define a custom intersectionThreshold, which is minimum width between a parent and the hidden node
+	    Then we move the parents themselves accordingly.
+	    This leads to symmetric and clean figures.
+	    To understand this more properly, make sure to run this code with breakpoints.
+	    */
+	    let parentFirst = father.x < mother.x ? father : mother;
+	    let parentSecond = father.x > mother.x ? father : mother;
+	    let intersectionThreshold = 35;
+	    if (xmid <= parentFirst.x || xmid - parentFirst.x <= intersectionThreshold) {
+	      let clashInit = check_ptr_link_clashes(opts, {
+	        'mother': mother,
+	        'father': father
+	      });
+	      let clashInitSize = clashInit === null ? 0 : clashInit.length;
+	      let separation = parentSecond.x - parentFirst.x;
+	      parentFirst.x = xmid - parentSecond.x + xmid;
+	      let clash = check_ptr_link_clashes(opts, {
+	        'mother': mother,
+	        'father': father
+	      });
+	      let clashSize = clash === null ? 0 : clash.length;
+	      if (overlap(opts, root.descendants(), parentFirst.x, parentFirst.depth, [parentFirst.data.name]) || clashSize - clashInitSize > 0) {
+	        parentFirst.x = parentSecond.x - separation;
+	        xmid = (parentFirst.x + parentSecond.x) / 2;
+	      }
+	    } else if (xmid >= parentSecond.x || parentSecond.x - xmid <= intersectionThreshold) {
+	      let clashInit = check_ptr_link_clashes(opts, {
+	        'mother': mother,
+	        'father': father
+	      });
+	      let clashInitSize = clashInit === null ? 0 : clashInit.length;
+	      let separation = parentSecond.x - parentFirst.x;
+	      parentSecond.x = xmid - parentFirst.x + xmid;
+	      let clash = check_ptr_link_clashes(opts, {
+	        'mother': mother,
+	        'father': father
+	      });
+	      let clashSize = clash === null ? 0 : clash.length;
+	      if (overlap(opts, root.descendants(), parentSecond.x, parentSecond.depth, [parentSecond.data.name]) || clashSize - clashInitSize > 0) {
+	        parentSecond.x = parentFirst.x + separation;
+	        xmid = (parentFirst.x + parentSecond.x) / 2;
+	      }
+	    }
+	    // let xmid = (father.x + mother.x) / 2;
+	    if (!overlap(opts, root.descendants(), xmid, node.depth, [node.data.name])) {
+	      node.x = xmid; // centralise parent nodes
+	      let diff = node.x - xmid;
+	      if (node.children.length === 2 && (node.children[0].data.hidden || node.children[1].data.hidden)) {
+	        if (!(node.children[0].data.hidden && node.children[1].data.hidden)) {
+	          let child1 = node.children[0].data.hidden ? node.children[1] : node.children[0];
+	          let child2 = node.children[0].data.hidden ? node.children[0] : node.children[1];
+	          if ((child1.x < child2.x && xmid < child2.x || child1.x > child2.x && xmid > child2.x) && !overlap(opts, root.descendants(), xmid, child1.depth, [child1.data.name])) {
+	            child1.x = xmid;
+	          }
+	        }
+	      } else if (node.children.length === 1 && !node.children[0].data.hidden) {
+	        if (!overlap(opts, root.descendants(), xmid, node.children[0].depth, [node.children[0].data.name])) node.children[0].x = xmid;
+	      } else {
+	        if (diff !== 0 && !nodesOverlap(opts, node, diff, root)) {
+	          if (node.children.length === 1) {
+	            node.children[0].x = xmid;
 	          } else {
-	            if (diff !== 0 && !nodesOverlap(opts, node, diff, root)) {
-	              if (node.children.length === 1) {
-	                node.children[0].x = xmid;
-	              } else {
-	                let descendants = node.descendants();
-	                if (opts.DEBUG) console.log('ADJUSTING ' + node.data.name + ' NO. DESCENDANTS ' + descendants.length + ' diff=' + diff);
-	                for (let i = 0; i < descendants.length; i++) {
-	                  if (node.data.name !== descendants[i].data.name) descendants[i].x -= diff;
-	                }
-	              }
+	            let descendants = node.descendants();
+	            if (opts.DEBUG) console.log('ADJUSTING ' + node.data.name + ' NO. DESCENDANTS ' + descendants.length + ' diff=' + diff);
+	            for (let i = 0; i < descendants.length; i++) {
+	              if (node.data.name !== descendants[i].data.name) descendants[i].x -= diff;
 	            }
 	          }
-	        } else if (node.x < father.x && node.x < mother.x || node.x > father.x && node.x > mother.x) {
-	          node.x = xmid; // centralise parent nodes if it doesn't lie between mother and father
 	        }
 	      }
+	    } else if (node.x < father.x && node.x < mother.x || node.x > father.x && node.x > mother.x) {
+	      node.x = xmid; // centralise parent nodes if it doesn't lie between mother and father
 	    }
 	  }
 	  recurse(root);
 	  recurse(root);
+	}
+	function adjustPartnerIds(opts, partners) {
+	  partners.forEach(partner => {
+	    let twin = partner.mother.mztwin ? partner.mother : partner.father.mztwin ? partner.father : null;
+	    if (twin) {
+	      fixIdGaps(partner, twin);
+	    }
+	  });
+	  partners.forEach(partner => {
+	    swapPartnerIds(partner);
+	  });
+	  function fixIdGaps(partner, twin) {
+	    let noparents;
+	    let otherPartner;
+	    if (partner.mother.noparents) {
+	      noparents = partner.mother;
+	      otherPartner = partner.father;
+	    } else if (partner.father.noparents) {
+	      noparents = partner.father;
+	      otherPartner = partner.mother;
+	    }
+	    if (noparents && otherPartner) {
+	      let partnerFirst = noparents.id < otherPartner.id ? noparents : otherPartner;
+	      let partnerSecond = noparents.id > otherPartner.id ? noparents : otherPartner;
+	      if (partnerSecond.id - partnerFirst.id > 2) {
+	        let parentNode = partnerSecond.parent_node.filter(parent => {
+	          return parent.father === partnerFirst || parent.mother === partnerFirst;
+	        });
+	        // fix all other partners of partnerSecond
+	        let additionalPartner = partnerSecond.parent_node.filter(parent => {
+	          return !(parent.father === partnerFirst || parent.mother === partnerFirst);
+	        });
+	        let parentId;
+	        if (parentNode.length > 0) {
+	          parentId = parentNode[0].id;
+	          let otherTwin = getTwins(opts.dataset, twin)[0];
+	          console.log(otherTwin);
+	          let twinIdDiff = otherTwin.id - twin.id;
+	          console.log(twinIdDiff);
+	          if (partnerFirst.id - parentId === 1 && twinIdDiff !== 1 && twinIdDiff !== -1) {
+	            partnerSecond.id = partnerFirst.id - 2;
+	            if (additionalPartner.length > 0) {
+	              let additionalPartnerNode = partnerSecond === additionalPartner[0].mother ? additionalPartner[0].father : additionalPartner[0].mother;
+	              if (twinIdDiff > 0) {
+	                additionalPartner[0].id = partnerSecond.id - 1;
+	                additionalPartnerNode.id + partnerSecond.id - 2;
+	              } else {
+	                additionalPartner[0].id = partnerFirst.id + 1;
+	                additionalPartnerNode.id + partnerFirst.id + 2;
+	              }
+	            }
+	          } else if (partnerFirst.id - parentId === -1 && twinIdDiff !== 1 && twinIdDiff !== -1) {
+	            partnerSecond.id = partnerFirst.id + 2;
+	            if (additionalPartner.length > 0) {
+	              let additionalPartnerNode = partnerSecond === additionalPartner[0].mother ? additionalPartner[0].father : additionalPartner[0].mother;
+	              if (twinIdDiff > 0) {
+	                additionalPartner[0].id = partnerFirst.id - 1;
+	                additionalPartnerNode.id = partnerFirst.id - 2;
+	              } else {
+	                additionalPartner[0].id = partnerSecond.id + 1;
+	                additionalPartnerNode.id = partnerSecond.id + 2;
+	              }
+	            }
+	          }
+	        }
+	      }
+	    }
+	  }
+	  function swapPartnerIds(partner) {
+	    let noparents;
+	    let otherPartner;
+	    if (partner.mother.noparents) {
+	      noparents = partner.mother;
+	      otherPartner = partner.father;
+	    } else if (partner.father.noparents) {
+	      noparents = partner.father;
+	      otherPartner = partner.mother;
+	    }
+	    if (noparents && otherPartner && !otherPartner.top_level) {
+	      let father = getNodeByName(opts.dataset, otherPartner.father);
+	      let siblings = father.parent_node[0].children;
+	      let visibleSiblings = siblings.filter(sibling => !(sibling.hidden || sibling.noparents) && sibling !== noparents && sibling !== otherPartner && sibling.mother === otherPartner.mother && sibling.father === otherPartner.father);
+
+	      // Count siblings to the left and right of the partner
+	      let leftCount = visibleSiblings.filter(sibling => sibling.id < otherPartner.id).length;
+	      let rightCount = visibleSiblings.length - leftCount;
+	      let sideWithHigherCount = leftCount > rightCount ? 'left' : 'right';
+
+	      // Find all other partners of both noparents and otherPartner
+	      let noparentsPartner = partners.filter(p => (p.mother === noparents || p.father === noparents) && !(p.mother === noparents && p.father === otherPartner) && !(p.father === noparents && p.mother === otherPartner)).map(p => p.mother === noparents ? p.father : p.mother)[0];
+	      let otherPartnerPartner = partners.filter(p => (p.mother === otherPartner || p.father === otherPartner) && !(p.mother === noparents && p.father === otherPartner) && !(p.father === noparents && p.mother === otherPartner)).map(p => p.mother === otherPartner ? p.father : p.mother)[0];
+	      let swap = false;
+	      if (!noparentsPartner && !otherPartnerPartner) {
+	        swap = sideWithHigherCount === 'left' && noparents.id < otherPartner.id || sideWithHigherCount === 'right' && noparents.id > otherPartner.id;
+	      } else if (otherPartnerPartner && noparents.id < otherPartner.id && otherPartnerPartner.id < otherPartner.id) {
+	        swap = true;
+	      } else if (otherPartnerPartner && noparents.id > otherPartner.id && otherPartnerPartner.id > otherPartner.id) {
+	        swap = true;
+	      } else if (noparentsPartner && otherPartner.id > noparents.id && noparentsPartner.id > noparents.id) {
+	        swap = true;
+	      } else if (noparentsPartner && otherPartner.id > noparents.id && noparentsPartner.id > noparents.id) {
+	        swap = true;
+	      }
+	      if (swap) {
+	        // Swap the positions of node and partner by exchanging their x values
+	        let tempId = noparents.id;
+	        noparents.id = otherPartner.id;
+	        otherPartner.id = tempId;
+	      }
+	      return swap;
+	    }
+	  }
 	}
 
 	// test if moving siblings by diff overlaps with other nodes
@@ -848,6 +1026,7 @@ var pedigreejs = (function (exports) {
 
 	var utils = /*#__PURE__*/Object.freeze({
 		__proto__: null,
+		adjustPartnerIds: adjustPartnerIds,
 		adjust_coords: adjust_coords,
 		ancestors: ancestors,
 		buildTree: buildTree,
@@ -2902,7 +3081,7 @@ var pedigreejs = (function (exports) {
 	    return -0.75 * opts.symbol_size;
 	  }).attr("y", function (_d) {
 	    return -opts.symbol_size;
-	  }).attr("width", 1.5 * opts.symbol_size + 'px').attr("height", 2 * opts.symbol_size + 'px').style("stroke", "black").style("stroke-width", 0.7).style("opacity", 0).attr("fill", "lightgrey");
+	  }).attr("width", 1.5 * opts.symbol_size + 'px').attr("height", 2 * opts.symbol_size + 'px').style("stroke", "black").style("stroke-width", 0.7).style("opacity", 0).attr("fill", "grey");
 
 	  // widgets
 	  let fx = function (_d) {
@@ -3046,12 +3225,14 @@ var pedigreejs = (function (exports) {
 	    d3.select(this).select('rect').style("opacity", 0.2);
 	    d3.select(this).selectAll('.addchild, .addsibling, .addpartner, .addparents, .delete, .settings').style("opacity", 1);
 	    d3.select(this).selectAll('.indi_details').style("opacity", 0);
+	    d3.select(this).selectAll('.ped_label').style("opacity", 0);
 	    setLineDragPosition(opts.symbol_size - 10, 0, opts.symbol_size - 2, 0, d.x + "," + (d.y + 2));
 	  }).on("mouseout", function (d) {
 	    if (dragging) return;
 	    d3.select(this).selectAll('.addchild, .addsibling, .addpartner, .addparents, .delete, .settings').style("opacity", 0);
 	    if (highlight.indexOf(d) === -1) d3.select(this).select('rect').style("opacity", 0);
 	    d3.select(this).selectAll('.indi_details').style("opacity", 1);
+	    d3.select(this).selectAll('.ped_label').style("opacity", 1);
 	    // hide popup if it looks like the mouse is moving north
 	    let xcoord = d3.pointer(d)[0];
 	    let ycoord = d3.pointer(d)[1];
@@ -3082,10 +3263,10 @@ var pedigreejs = (function (exports) {
 	  }
 	  function dragstop(_d) {
 	    if (last_mouseover && dragging.data.name !== last_mouseover.data.name && dragging.data.sex !== last_mouseover.data.sex) {
-	      // make partners
 	      let child = {
 	        "name": makeid(4),
 	        "sex": 'U',
+	        "hidden": true,
 	        "mother": dragging.data.sex === 'F' ? dragging.data.name : last_mouseover.data.name,
 	        "father": dragging.data.sex === 'F' ? last_mouseover.data.name : dragging.data.name
 	      };
@@ -3128,28 +3309,24 @@ var pedigreejs = (function (exports) {
 	  $('#node_properties').dialog({
 	    autoOpen: false,
 	    title: d.data.display_name,
-	    width: $(window).width() > 400 ? 450 : $(window).width() - 30
+	    width: $(window).width() > 800 ? 450 : $(window).width() - 30
 	  });
-	  let table = "<table id='person_details' class='table'>";
-	  table += "<tr><td style='text-align:right'>Unique ID</td><td><input class='form-control' type='text' id='id_name' name='name' value=" + (d.data.name ? d.data.name : "") + "></td></tr>";
-	  table += "<tr><td style='text-align:right'>Name</td><td><input class='form-control' type='text' id='id_display_name' name='display_name' value=" + (d.data.display_name ? d.data.display_name : "") + "></td></tr>";
-	  table += "<tr><td style='text-align:right'>Age</td><td><input class='form-control' type='number' id='id_age' min='0' max='120' name='age' style='width:7em' value=" + (d.data.age ? d.data.age : "") + "></td></tr>";
-	  table += "<tr><td style='text-align:right'>Year Of Birth</td><td><input class='form-control' type='number' id='id_yob' min='1900' max='2050' name='yob' style='width:7em' value=" + (d.data.yob ? d.data.yob : "") + "></td></tr>";
+	  let table = "<table id='person_details' class='table' width='600' height='500' border='0'>";
+	  table += "<tr><td style='text-align:right; padding-right: 26px;'>Unique ID</td><td><input class='form-control' type='text' id='id_name' name='name' value=" + (d.data.name ? d.data.name : "") + "></td></tr>";
+	  table += "<tr><td style='text-align:right; padding-right: 26px;'>First name</td><td><input class='form-control' type='text' id='id_display_name' name='display_name' value=" + (d.data.display_name ? d.data.display_name : "") + "></td><td style='text-align:right'>Last name</td><td><input class='form-control' type='text' id='id_last_name' name='last_name' value=" + (d.data.last_name ? d.data.last_name : "") + "></td></tr>";
+	  table += "<tr><td style='text-align:right; padding-right: 20px;'>Year Of Birth</td><td><input class='form-control' type='number' id='id_yob' min='1900' max='2050' name='yob' style='width:7em' value=" + (d.data.yob ? d.data.yob : "") + "></td> <td style='text-align:right'>Age</td><td><input class='form-control' type='number' id='id_age' min='0' max='120' name='age' style='width:7em' value=" + (d.data.age ? d.data.age : "") + "></td></tr>";
+	  table += "<tr><td style='text-align:right'>Year Of Death</td><td><input class='form-control' type='number' id='id_yod' min='1900' max='2050' name='yod' style='width:7em' value=" + (d.data.yod ? d.data.yod : "") + "></td><td style='text-align:right'>Age of death</td><td><input class='form-control' type='number' id='id_age_age_of_death' min='0' max='120' name='age_of_death' style='width:7em' value=" + (d.data.age_of_death ? d.data.age_of_death : "") + "></td></tr>";
 	  table += '<tr><td colspan="2" id="id_sex">' + '<label class="radio-inline"><input type="radio" name="sex" value="M" ' + (d.data.sex === 'M' ? "checked" : "") + '>Male</label>' + '<label class="radio-inline"><input type="radio" name="sex" value="F" ' + (d.data.sex === 'F' ? "checked" : "") + '>Female</label>' + '<label class="radio-inline"><input type="radio" name="sex" value="U">Unknown</label>' + '</td></tr>';
-
 	  // alive status = 0; dead status = 1
 	  table += '<tr><td colspan="2" id="id_status">' + '<label class="checkbox-inline"><input type="radio" name="status" value="0" ' + (parseInt(d.data.status) === 0 ? "checked" : "") + '>&thinsp;Alive</label>' + '<label class="checkbox-inline"><input type="radio" name="status" value="1" ' + (parseInt(d.data.status) === 1 ? "checked" : "") + '>&thinsp;Deceased</label>' + '</td></tr>';
 	  $("#id_status input[value='" + d.data.status + "']").prop('checked', true);
 
 	  // switches
-	  let switches = ["adopted_in", "adopted_out", "miscarriage", "stillbirth", "termination"];
-	  table += '<tr><td colspan="2"><strong>Reproduction:</strong></td></tr>';
-	  table += '<tr><td colspan="2">';
-	  for (let iswitch = 0; iswitch < switches.length; iswitch++) {
-	    let attr = switches[iswitch];
-	    if (iswitch === 2) table += '</td></tr><tr><td colspan="2">';
-	    table += '<label class="checkbox-inline"><input type="checkbox" id="id_' + attr + '" name="' + attr + '" value="0" ' + (d.data[attr] ? "checked" : "") + '>&thinsp;' + capitaliseFirstLetter(attr.replace('_', ' ')) + '</label>';
-	  }
+	  table += "<tr><td style='text-align:left; padding-right:10px;'><strong>Father</strong></td><td><input class='form-control' type='text' id='id_father' name='father' value='" + (d.data.father ? d.data.father : "") + "'></td></tr>";
+	  table += "<tr><td style='text-align:left; padding-right:10px;'><strong>Mother</strong></td><td><input class='form-control' type='text' id='id_mother' name='mother' value='" + (d.data.mother ? d.data.mother : "") + "'></td></tr>";
+	  table += "<tr><td style='text-align:left; padding-right:10px;'><strong>No_parents</strong></td><td><input class='form-control' type='text' id='id_noparents' name='noparents' value='" + (d.data.noparents ? d.data.noparents : "") + "'></td></tr>";
+	  let switches = ["adopted_in", "adopted_out", "miscarriage", "stillbirth ", "termination", "Abortion"];
+	  table += '<tr><td colspan="2"><strong>Reproduction:</strong></td></tr><tr><td colspan="2">' + switches.map((attr, i) => (i === 2 || i === 4 ? '</td></tr><tr><td colspan="2">' : '') + '<label class="checkbox-inline" style="white-space: nowrap;"><input type="checkbox" id="id_' + attr + '" name="' + attr + '" value="0" ' + (d.data[attr] ? "checked" : "") + '>&thinsp;' + capitaliseFirstLetter(attr.replace('_', ' ')) + '</label>').join('') + '</td></tr>';
 	  table += '</td></tr>';
 
 	  //
@@ -3163,17 +3340,8 @@ var pedigreejs = (function (exports) {
 	    table += "<tr><td style='text-align:right'>" + capitaliseFirstLetter(v.type.replace("_", " ")) + disease_colour + "&nbsp;</td><td>" + "<input class='form-control' id='id_" + v.type + "_diagnosis_age_0' max='110' min='0' name='" + v.type + "_diagnosis_age_0' style='width:5em' type='number' value='" + (diagnosis_age !== undefined ? diagnosis_age : "") + "'></td></tr>";
 	  });
 	  table += '<tr><td colspan="2" style="line-height:1px;"></td></tr>';
-	  $.each(d.data, function (k, v) {
-	    if ($.inArray(k, exclude) === -1) {
-	      let kk = capitaliseFirstLetter(k);
-	      if (v === true || v === false) {
-	        table += "<tr><td style='text-align:right'>" + kk + "&nbsp;</td><td><input type='checkbox' id='id_" + k + "' name='" + k + "' value=" + v + " " + (v ? "checked" : "") + "></td></tr>";
-	      } else if (k.length > 0) {
-	        table += "<tr><td style='text-align:right'>" + kk + "&nbsp;</td><td><input type='text' id='id_" + k + "' name='" + k + "' value=" + v + "></td></tr>";
-	      }
-	    }
-	  });
-	  table += "</table>";
+	  table += "<tr><td style='text-align:right; padding-right: 20px;'><strong>Additional Info:</strong></td><td><input class='form-control' type='text' id='id_additional_information' name='additional_information' value=" + (d.data.additional_information ? d.data.additional_information : "") + "></td></tr>";
+	  table += '</table>';
 	  $('#node_properties').html(table);
 	  $('#node_properties').dialog('open');
 	  $('#node_properties input[type=radio], #node_properties input[type=checkbox], #node_properties input[type=text], #node_properties input[type=number]').change(function () {
@@ -3220,6 +3388,7 @@ var pedigreejs = (function (exports) {
 	  if (twin_type && $.inArray(twin_type, ["mztwin", "dztwin"]) === -1) return new Error("INVALID TWIN TYPE SET: " + twin_type);
 	  let newbie = {
 	    "name": makeid(4),
+	    display_name: "new!",
 	    "sex": sex
 	  };
 	  if (node.top_level) {
@@ -3232,10 +3401,10 @@ var pedigreejs = (function (exports) {
 	  if (twin_type) {
 	    setMzTwin(dataset, dataset[idx], newbie, twin_type);
 	  }
-	  if (add_lhs) {
+	  if (!add_lhs) {
 	    // add to LHS
-	    if (idx > 0) idx--;
-	  } else idx++;
+	    idx++;
+	  }
 	  dataset.splice(idx, 0, newbie);
 	  return newbie;
 	}
@@ -3343,7 +3512,21 @@ var pedigreejs = (function (exports) {
 	  let root = roots[opts.targetDiv];
 	  let flat_tree = flatten(root);
 	  let tree_node = getNodeByName(flat_tree, name);
-	  let partner = addsibling(dataset, tree_node.data, tree_node.data.sex === 'F' ? 'M' : 'F', tree_node.data.sex === 'F');
+	  /*
+	  Older logic - partner lhs or rhs (controlled via lhs argument of addsibling function) depends on gender, M or F, alone
+	  New Logic - if partners exist, check their position, and place a new partner in the opposite direction. 
+	  Use this condition to control lhs argument of addsibling
+	  */
+	  let tree_partner = get_partners(dataset, tree_node.data);
+	  let siblings = tree_node.parent.children;
+	  let lhs = siblings.length > 1;
+	  if (tree_partner.length > 0) {
+	    let treeIdx = getIdxByName(flat_tree, name);
+	    let partnerIdx = getIdxByName(flat_tree, tree_partner);
+	    lhs = treeIdx < partnerIdx;
+	  }
+	  let partner = addsibling(dataset, tree_node.data, tree_node.data.sex === 'F' ? 'M' : 'F', lhs);
+	  // let partner = addsibling(dataset, tree_node.data, tree_node.data.sex === 'F' ? 'M' : 'F', tree_node.data.sex === 'F');
 	  partner.noparents = true;
 	  let child = {
 	    "name": makeid(4),
@@ -3488,6 +3671,10 @@ var pedigreejs = (function (exports) {
 	    if (opts.DEBUG) return ('display_name' in d.data ? d.data.display_name : d.data.name) + '  ' + d.data.id;
 	    return 'display_name' in d.data ? d.data.display_name : '';
 	  }, undefined, ['display_name']);
+	  addLabel(opts, node, -(0.4 * opts.symbol_size), -(0.1 * opts.symbol_size - 13), function (d) {
+	    if (opts.DEBUG) return ('last_name' in d.data ? d.data.last_name : d.data.name) + '  ' + d.data.id;
+	    return 'last_name' in d.data ? d.data.last_name : '';
+	  }, undefined, ['last_name']);
 	  let font_size = parseInt(getPx(opts)) + 4;
 	  // display age/yob label first
 	  for (let ilab = 0; ilab < opts.labels.length; ilab++) {
@@ -3574,7 +3761,16 @@ var pedigreejs = (function (exports) {
 	function addLabel(opts, node, fx, fy, ftext, class_label, labels) {
 	  node.filter(function (d) {
 	    return !d.data.hidden && (!labels || node_has_label(d, labels));
-	  }).append("text").attr("class", class_label ? class_label + ' ped_label' : 'ped_label').attr("x", fx).attr("y", fy).attr("font-family", opts.font_family).attr("font-size", opts.font_size).attr("font-weight", opts.font_weight).text(ftext);
+	  }).append("text").attr("class", class_label ? class_label + ' ped_label' : 'ped_label')
+	  // .attr("x", fx)
+	  // .attr("y", fy)
+	  .attr("x", function () {
+	    return class_label === 'indi_details' ? fx + 30 : fx - 5;
+	  }).attr("y", function () {
+	    return class_label === 'indi_details' ? 45 : fy + 35;
+	  }).attr("font-family", opts.font_family)
+	  // .attr("font-size", opts.font_size)
+	  .attr("font-size", "0.80em").attr("font-weight", opts.font_weight).text(ftext);
 	}
 
 	// get height in pixels
@@ -3752,7 +3948,7 @@ var pedigreejs = (function (exports) {
 	  if (opts.DEBUG) print_opts(opts);
 	  let svg_dimensions = get_svg_dimensions(opts);
 	  let svg = d3.select("#" + opts.targetDiv).append("svg:svg").attr("width", svg_dimensions.width).attr("height", svg_dimensions.height);
-	  svg.append("rect").attr("width", "100%").attr("height", "100%").attr("rx", 6).attr("ry", 6).style("stroke", "darkgrey").style("fill", opts.background) // or none
+	  svg.append("rect").attr("width", "100%").attr("height", "100%").attr("rx", 6).attr("ry", 6).style("stroke", "white").style("fill", "white") // or none
 	  .style("stroke-width", 1);
 	  let ped = svg.append("g").attr("class", "diagram");
 	  let top_level = $.map(opts.dataset, function (val, _i) {
@@ -3765,6 +3961,17 @@ var pedigreejs = (function (exports) {
 	    children: top_level
 	  };
 	  let partners = buildTree(opts, hidden_root, hidden_root)[0];
+
+	  // Varun's Note: Build Tree creates
+	  // 1. hidden nodes which are used to generate downward lines to connect children. 
+	  // 2. IDs which it assigns to every node, including hidden node. The order of these IDs determines the order of nodes in a given generation.
+	  // The following function, adjustPartnerIds fixes two important issues that are prevalent for partners in particular.
+	  // a) When siblings are present, the partners are rendered on the wrong sides.
+	  // b) When both mztwins have a partner each, line crossing happen.
+	  // If you turn this off, both issues will start occuring again, but the rest of the tree will be fine. 
+	  // To understand this logic and code, run this segment with breakpoints and track the values of IDs in hidden_root, partners and opts.dataset
+
+	  adjustPartnerIds(opts, partners);
 	  let root = d3.hierarchy(hidden_root);
 	  roots[opts.targetDiv] = root;
 
@@ -3780,12 +3987,11 @@ var pedigreejs = (function (exports) {
 	  let flattenNodes = nodes.descendants();
 
 	  // check the number of visible nodes equals the size of the pedigree dataset
-	  let vis_nodes = $.map(opts.dataset, function (p, _i) {
-	    return p.hidden ? null : p;
-	  });
-	  if (vis_nodes.length !== opts.dataset.length) {
-	    throw create_err('NUMBER OF VISIBLE NODES DIFFERENT TO NUMBER IN THE DATASET');
-	  }
+	  // let vis_nodes = $.map(opts.dataset, function(p, _i){return p.hidden ? null : p;});
+	  // if(vis_nodes.length !== opts.dataset.length) {
+	  // 	throw utils.create_err('NUMBER OF VISIBLE NODES DIFFERENT TO NUMBER IN THE DATASET');
+	  // }
+
 	  adjust_coords(opts, nodes, flattenNodes);
 	  let ptrLinkNodes = linkNodes(flattenNodes, partners);
 	  check_ptr_links(opts, ptrLinkNodes); // check for crossing of partner lines
@@ -3793,7 +3999,14 @@ var pedigreejs = (function (exports) {
 	  let node = ped.selectAll(".node").data(nodes.descendants()).enter().append("g").attr("transform", function (d, _i) {
 	    return "translate(" + d.x + "," + d.y + ")";
 	  });
-
+	  const customLineSymbol = {
+	    draw(context) {
+	      const length = 40;
+	      context.moveTo(0, 0);
+	      context.lineTo(-length / 2, 0);
+	      context.lineTo(length / 2, 0);
+	    }
+	  };
 	  // provide a border to the node
 	  node.filter(function (d) {
 	    return !d.data.hidden;
@@ -3802,12 +4015,15 @@ var pedigreejs = (function (exports) {
 	  }).attr("d", d3.symbol().size(function (_d) {
 	    return opts.symbol_size * opts.symbol_size + 2;
 	  }).type(function (d) {
+	    if (d.data.noChild) {
+	      return customLineSymbol;
+	    }
 	    if (d.data.miscarriage || d.data.termination) return d3.symbolTriangle;
 	    return d.data.sex === "F" ? d3.symbolCircle : d3.symbolSquare;
 	  })).style("stroke", function (d) {
-	    return d.data.age && d.data.yob && !d.data.exclude ? "#303030" : "grey";
+	    return d.data.age && d.data.yob && !d.data.exclude ? "#303030" : "black";
 	  }).style("stroke-width", function (d) {
-	    return d.data.age && d.data.yob && !d.data.exclude ? ".3em" : ".1em";
+	    return d.data.age && d.data.yob && !d.data.exclude ? ".3em" : ".2em";
 	  }).style("stroke-dasharray", function (d) {
 	    return !d.data.exclude ? null : "3, 3";
 	  }).style("fill", "none");
@@ -3823,6 +4039,9 @@ var pedigreejs = (function (exports) {
 	    if (d.data.hidden) return opts.symbol_size * opts.symbol_size / 5;
 	    return opts.symbol_size * opts.symbol_size;
 	  }).type(function (d) {
+	    if (d.data.noChild) {
+	      return customLineSymbol;
+	    }
 	    if (d.data.miscarriage || d.data.termination) return d3.symbolTriangle;
 	    return d.data.sex === "F" ? d3.symbolCircle : d3.symbolSquare;
 	  }));
@@ -4123,6 +4342,7 @@ var pedigreejs = (function (exports) {
 	function rebuild(opts) {
 	  $("#" + opts.targetDiv).empty();
 	  init_cache(opts);
+	  opts.editClicked = true;
 	  try {
 	    build(opts);
 	  } catch (e) {

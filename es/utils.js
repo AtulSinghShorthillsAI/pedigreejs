@@ -6,6 +6,7 @@
 
 // Pedigree Tree Utils
 import * as pedcache from './pedcache.js';
+import { check_ptr_link_clashes } from './pedigree.js';
 
 
 export let roots = {};
@@ -604,7 +605,69 @@ export function adjust_coords(opts, root, flattenNodes) {
 			if(node.data.father !== undefined) { 	// hidden nodes
 				let father = getNodeByName(flattenNodes, node.data.father.name);
 				let mother = getNodeByName(flattenNodes, node.data.mother.name);
-				let xmid = (father.x + mother.x) /2;
+
+				adjustConnection(node, father, mother);
+			} 	
+
+		}
+	}
+
+	function adjustConnection(node, father, mother){
+		/*
+				Previous Logic -> place hidden parent node at the midpoint of the two parents ie father.x + mother.x/2
+				Obviously, this doesn't take into account the positions of the children which leads to kinks and irregular connections.
+				We replace this logic with 
+				hidden parent node = midpoint of all the real children ie children with hidden false and noparents also false (or not existing)
+				*/
+				let xReal =  0;
+				let nReal = 0;
+				node.children.forEach((child) => {
+					if(!child.data.hidden && !child.data.noparents){
+						xReal = xReal + child.x;
+						nReal++;
+					}
+				});
+				let xmid = xReal/nReal;
+				/*
+				This logic handles the situation where the hidden parent coordinate lies
+				i) outside the two parents
+				ii) close to the two parents (leading to non-aesthetic lines)
+				To handle the first, we just compare the coordinates of xmid with those of the real parents.
+				To handle the second, we define a custom intersectionThreshold, which is minimum width between a parent and the hidden node
+				Then we move the parents themselves accordingly.
+				This leads to symmetric and clean figures.
+				To understand this more properly, make sure to run this code with breakpoints.
+				*/
+				let parentFirst = father.x < mother.x ? father : mother; 
+				let parentSecond = father.x > mother.x ? father : mother;
+				let intersectionThreshold = 35;
+				if(xmid <=parentFirst.x || xmid - parentFirst.x <=intersectionThreshold ){
+					let clashInit = check_ptr_link_clashes(opts, {'mother': mother, 'father': father})
+					let clashInitSize =  clashInit === null ? 0 : clashInit.length;
+					let separation = parentSecond.x - parentFirst.x;
+					parentFirst.x = xmid - parentSecond.x + xmid;
+
+					let clash = check_ptr_link_clashes(opts, {'mother': mother, 'father': father}) 
+					let clashSize = clash === null ? 0 : clash.length;
+					if(overlap(opts, root.descendants(), parentFirst.x, parentFirst.depth, [parentFirst.data.name]) || (clashSize - clashInitSize > 0)){
+						parentFirst.x=parentSecond.x - separation;
+						xmid = (parentFirst.x+parentSecond.x)/2;
+					}
+
+				} else if (xmid >=parentSecond.x || parentSecond.x - xmid <=intersectionThreshold){
+					let clashInit = check_ptr_link_clashes(opts, {'mother': mother, 'father': father})
+					let clashInitSize =  clashInit === null ? 0 : clashInit.length;
+					let separation = parentSecond.x - parentFirst.x
+					parentSecond.x = xmid - parentFirst.x + xmid;
+					let clash = check_ptr_link_clashes(opts, {'mother': mother, 'father': father}) 
+					let clashSize = clash === null ? 0 : clash.length;
+					if(overlap(opts, root.descendants(), parentSecond.x, parentSecond.depth, [parentSecond.data.name]) || (clashSize - clashInitSize > 0)){
+						parentSecond.x=parentFirst.x+separation;
+						xmid = (parentFirst.x+parentSecond.x)/2;
+
+					}
+				}
+				// let xmid = (father.x + mother.x) / 2;
 				if(!overlap(opts, root.descendants(), xmid, node.depth, [node.data.name])) {
 					node.x = xmid;   // centralise parent nodes
 					let diff = node.x - xmid;
@@ -638,12 +701,175 @@ export function adjust_coords(opts, root, flattenNodes) {
 				} else if((node.x < father.x && node.x < mother.x) || (node.x > father.x && node.x > mother.x)){
 						node.x = xmid;   // centralise parent nodes if it doesn't lie between mother and father
 				}
-			}
-		}
+
 	}
 	recurse(root);
 	recurse(root);
+
 }
+
+export function adjustPartnerIds(opts, partners){
+
+
+	partners.forEach(partner =>
+	{
+		let twin = partner.mother.mztwin ? partner.mother : (partner.father.mztwin ? partner.father : null);
+		if(twin){
+			fixIdGaps(partner, twin)
+		}
+
+	}
+	)
+	partners.forEach(partner =>
+		{
+			swapPartnerIds(partner)})
+	
+	
+	function fixIdGaps(partner, twin){
+		let noparents;
+		let otherPartner;
+		if(partner.mother.noparents){
+			noparents = partner.mother;
+			otherPartner = partner.father;
+		} else if (partner.father.noparents){
+			noparents = partner.father;
+			otherPartner = partner.mother;
+		}
+		if (noparents && otherPartner){
+
+			let partnerFirst = noparents.id < otherPartner.id ? noparents : otherPartner;  
+			let partnerSecond = noparents.id > otherPartner.id ? noparents : otherPartner;
+			if(partnerSecond.id - partnerFirst.id > 2){
+				let parentNode = partnerSecond.parent_node.filter(parent => {
+					return parent.father === partnerFirst || parent.mother === partnerFirst;
+				})
+				// fix all other partners of partnerSecond
+				let additionalPartner = partnerSecond.parent_node.filter(parent => {
+					return !(parent.father === partnerFirst || parent.mother === partnerFirst);
+				})
+				let parentId;
+				if(parentNode.length>0){
+					parentId = parentNode[0].id;
+					let otherTwin =getTwins(opts.dataset, twin)[0];
+					console.log(otherTwin);
+					let twinIdDiff = otherTwin.id - twin.id;
+					console.log(twinIdDiff);
+					
+					if(partnerFirst.id - parentId === 1 && twinIdDiff !== 1 && twinIdDiff !== -1){
+						partnerSecond.id = partnerFirst.id - 2;
+						if(additionalPartner.length>0){
+							let additionalPartnerNode = partnerSecond === additionalPartner[0].mother ? additionalPartner[0].father : additionalPartner[0].mother;
+							if(twinIdDiff > 0){
+								
+								additionalPartner[0].id = partnerSecond.id -1;
+								additionalPartnerNode.id + partnerSecond.id - 2;
+							} else {
+								additionalPartner[0].id = partnerFirst.id +1;
+								additionalPartnerNode.id + partnerFirst.id + 2;
+							}
+
+						}
+	
+					} else if(partnerFirst.id - parentId === -1 && twinIdDiff !== 1 && twinIdDiff !== -1){
+						partnerSecond.id = partnerFirst.id + 2;
+						if(additionalPartner.length>0){
+							let additionalPartnerNode = partnerSecond === additionalPartner[0].mother ? additionalPartner[0].father : additionalPartner[0].mother;
+							if(twinIdDiff > 0){
+								additionalPartner[0].id = partnerFirst.id -1;
+								additionalPartnerNode.id = partnerFirst.id - 2;
+							} else {
+								additionalPartner[0].id = partnerSecond.id +1;
+								additionalPartnerNode.id = partnerSecond.id + 2;
+							}
+						}
+					}
+				}
+
+	
+
+
+
+			}
+	}
+	}
+	function swapPartnerIds(partner){
+
+		let noparents;
+		let otherPartner;
+		if(partner.mother.noparents){
+			noparents = partner.mother;
+			otherPartner = partner.father;
+		} else if (partner.father.noparents){
+			noparents = partner.father;
+			otherPartner = partner.mother;
+		}
+		if (noparents && otherPartner && (!otherPartner.top_level)){
+
+			let father = getNodeByName(opts.dataset,otherPartner.father);	
+
+			let siblings = father.parent_node[0].children;
+			let visibleSiblings = siblings.filter(sibling =>
+				!(sibling.hidden || sibling.noparents) && sibling!==noparents && sibling!==otherPartner && sibling.mother===otherPartner.mother && sibling.father===otherPartner.father
+			);
+
+			// Count siblings to the left and right of the partner
+			let leftCount = visibleSiblings.filter(sibling => sibling.id < otherPartner.id).length;
+			let rightCount = visibleSiblings.length - leftCount;
+			let sideWithHigherCount = leftCount > rightCount ? 'left' : 'right';
+			
+			// Find all other partners of both noparents and otherPartner
+			let noparentsPartner = partners.filter(p =>
+				(p.mother === noparents || p.father === noparents) &&
+				!(p.mother === noparents && p.father === otherPartner) &&
+				!(p.father === noparents && p.mother === otherPartner)
+			).map(p => p.mother === noparents ? p.father : p.mother)[0];
+
+			let otherPartnerPartner = partners.filter(p =>
+				(p.mother === otherPartner || p.father === otherPartner) &&
+				!(p.mother === noparents && p.father === otherPartner) &&
+				!(p.father === noparents && p.mother === otherPartner)
+			).map(p => p.mother === otherPartner ? p.father : p.mother)[0];
+
+			let swap = false;
+			
+			if(!noparentsPartner && !otherPartnerPartner){
+				swap = (sideWithHigherCount === 'left' && noparents.id < otherPartner.id) ||
+			(sideWithHigherCount === 'right' && noparents.id > otherPartner.id);
+			} else if(otherPartnerPartner &&
+				noparents.id < otherPartner.id && otherPartnerPartner.id < otherPartner.id
+			){
+				swap = true;
+			} else if( otherPartnerPartner &&
+				noparents.id > otherPartner.id && otherPartnerPartner.id > otherPartner.id
+			){
+				swap = true;
+			}  else if( noparentsPartner &&
+				otherPartner.id > noparents.id && noparentsPartner.id > noparents.id
+			){
+				swap = true;
+			}  else if( noparentsPartner &&
+				otherPartner.id > noparents.id && noparentsPartner.id > noparents.id
+			){
+				swap = true;
+			}
+
+
+			if (swap) {
+			
+				// Swap the positions of node and partner by exchanging their x values
+				let tempId = noparents.id;
+				noparents.id = otherPartner.id;
+				otherPartner.id = tempId;
+			
+			}
+
+			return swap;
+
+		}
+	}
+
+}
+
 
 // test if moving siblings by diff overlaps with other nodes
 function nodesOverlap(opts, node, diff, root) {

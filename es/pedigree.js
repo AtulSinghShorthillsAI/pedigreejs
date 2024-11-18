@@ -92,6 +92,18 @@ export function build(options) {
 	};
 
 	let partners = utils.buildTree(opts, hidden_root, hidden_root)[0];
+
+	// Varun's Note: Build Tree creates
+	// 1. hidden nodes which are used to generate downward lines to connect children. 
+	// 2. IDs which it assigns to every node, including hidden node. The order of these IDs determines the order of nodes in a given generation.
+	// The following function, adjustPartnerIds fixes two important issues that are prevalent for partners in particular.
+	// a) When siblings are present, the partners are rendered on the wrong sides.
+	// b) When both mztwins have a partner each, line crossing happen.
+	// If you turn this off, both issues will start occuring again, but the rest of the tree will be fine. 
+	// To understand this logic and code, run this segment with breakpoints and track the values of IDs in hidden_root, partners and opts.dataset
+
+	utils.adjustPartnerIds(opts, partners);
+
 	let root = d3.hierarchy(hidden_root);
 	utils.roots[opts.targetDiv] = root;
 
@@ -114,6 +126,7 @@ export function build(options) {
 	// 	throw utils.create_err('NUMBER OF VISIBLE NODES DIFFERENT TO NUMBER IN THE DATASET');
 	// }
 
+	
 	utils.adjust_coords(opts, nodes, flattenNodes);
 
 	let ptrLinkNodes = utils.linkNodes(flattenNodes, partners);
@@ -486,6 +499,7 @@ function check_ptr_links(opts, ptrLinkNodes){
 	}
 }
 
+
 export function check_ptr_link_clashes(opts, anode) {
 	let root = utils.roots[opts.targetDiv];
 	let flattenNodes = utils.flatten(root);
@@ -549,6 +563,7 @@ function group_top_level(dataset) {
 export function rebuild(opts) {
 	$("#"+opts.targetDiv).empty();
 	pedcache.init_cache(opts);
+	opts.editClicked = true;
 	try {
 		build(opts);
 	} catch(e) {

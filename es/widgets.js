@@ -530,7 +530,7 @@ export function addsibling(dataset, node, sex, add_lhs, twin_type) {
 	if(twin_type && $.inArray(twin_type, [ "mztwin", "dztwin" ] ) === -1)
 		return new Error("INVALID TWIN TYPE SET: "+twin_type);
 
-	let newbie = {"name": utils.makeid(4), "sex": sex};
+	let newbie = {"name": utils.makeid(4), display_name: "new!", "sex": sex};
 	if(node.top_level) {
 		newbie.top_level = true;
 	} else {
@@ -543,10 +543,9 @@ export function addsibling(dataset, node, sex, add_lhs, twin_type) {
 		setMzTwin(dataset, dataset[idx], newbie, twin_type);
 	}
 
-	if(add_lhs) { // add to LHS
-		if(idx > 0) idx--;
-	} else
+	if(!add_lhs) { // add to LHS
 		idx++;
+	}
 	dataset.splice(idx, 0, newbie);
 	return newbie;
 }
@@ -661,11 +660,27 @@ export function addpartner(opts, dataset, name) {
 	let root = utils.roots[opts.targetDiv];
 	let flat_tree = utils.flatten(root);
 	let tree_node = utils.getNodeByName(flat_tree, name);
+	/*
+	Older logic - partner lhs or rhs (controlled via lhs argument of addsibling function) depends on gender, M or F, alone
+	New Logic - if partners exist, check their position, and place a new partner in the opposite direction. 
+	Use this condition to control lhs argument of addsibling
+	*/
+	let tree_partner = utils.get_partners(dataset, tree_node.data);
 
-	let partner = addsibling(dataset, tree_node.data, tree_node.data.sex === 'F' ? 'M' : 'F', tree_node.data.sex === 'F');
+	let siblings = tree_node.parent.children;
+	let lhs = siblings.length > 1;
+
+	if(tree_partner.length >0){
+		let treeIdx = utils.getIdxByName(flat_tree,name);
+		let partnerIdx = utils.getIdxByName(flat_tree,tree_partner);
+		lhs =  treeIdx < partnerIdx;
+	}
+	
+	let partner = addsibling(dataset, tree_node.data, tree_node.data.sex === 'F' ? 'M' : 'F', lhs);
+	// let partner = addsibling(dataset, tree_node.data, tree_node.data.sex === 'F' ? 'M' : 'F', tree_node.data.sex === 'F');
 	partner.noparents = true;
 
-	let child = {"name": utils.makeid(4), "sex": "M","hidden": true};
+	let child = {"name": utils.makeid(4), "sex": "M"};
 	child.mother = (tree_node.data.sex === 'F' ? tree_node.data.name : partner.name);
 	child.father = (tree_node.data.sex === 'F' ? partner.name : tree_node.data.name);
 

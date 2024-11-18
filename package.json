@@ -53,6 +53,7 @@
 	"dependencies": {
 		"@rollup/pluginutils": "^5.1.0",
 		"caniuse-lite": "^1.0.30001600",
+		"node": "^18.20.5",
 		"postcss": "^8.4.38"
 	}
 }
