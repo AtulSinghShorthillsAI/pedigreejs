@@ -403,8 +403,10 @@ function capitaliseFirstLetter(string) {
 function openEditDialog(opts, d) {
 	$('#node_properties').dialog({
 	    autoOpen: false,
+		
 	    title: d.data.display_name,
 		width: ($(window).width() > 800 ? 450 : $(window).width()- 30)
+
 	});
 	let table = "<table id='person_details' class='table' width='600' height='500' border='0'>";
 
@@ -680,7 +682,7 @@ export function addpartner(opts, dataset, name) {
 	// let partner = addsibling(dataset, tree_node.data, tree_node.data.sex === 'F' ? 'M' : 'F', tree_node.data.sex === 'F');
 	partner.noparents = true;
 
-	let child = {"name": utils.makeid(4), "sex": "M"};
+	let child = {"name": utils.makeid(4), "sex": "M", hidden: true};
 	child.mother = (tree_node.data.sex === 'F' ? tree_node.data.name : partner.name);
 	child.father = (tree_node.data.sex === 'F' ? partner.name : tree_node.data.name);
 
@@ -795,7 +797,7 @@ export function delete_node_dataset(dataset, node, opts, onDone) {
 		// check & warn only if this is a new split
 		if(utils.unconnected(opts.dataset).length === 0) {
 			console.error("individuals unconnected to pedigree ", uc);
-			utils.messages("Warning", "Deleting this will split the pedigree. Continue?", onDone, opts, dataset);
+			utils.messages("Warning", "Deleting this will split the pedigree. Do you want to continue?", onDone, opts, dataset);
 			return;
 		}
 	}

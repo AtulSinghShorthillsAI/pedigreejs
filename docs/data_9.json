@@ -1,0 +1,70 @@
+[
+    {
+        "name": "1",
+        "sex": "F",
+        "level": "0",
+        "partner": "2",
+        "top_level": "True"
+    },
+    {
+        "name": "2",
+        "sex": "M",
+        "level": "0",
+        "top_level": "True"
+    },
+    {
+        "name": "3",
+        "sex": "F",
+        "level": "1",
+        "father": "2",
+        "mother": "1"
+    },
+    {
+        "name": "4",
+        "sex": "M",
+        "level": "1",
+        "father": "2",
+        "mother": "1"
+    },
+    {
+        "name": "5",
+        "sex": "F",
+        "level": "1",
+        "father": "2",
+        "mother": "1",
+        "partner": "6",
+        "proband": "True"
+    },
+    {
+        "name": "6",
+        "sex": "M",
+        "level": "1",
+        "noparents": "True",
+        "mother": "1",
+        "father": "2"
+    },
+    {
+        "name": "7",
+        "sex": "F",
+        "level": "2",
+        "father": "6",
+        "mother": "5",
+        "partner": "8"
+    },
+    {
+        "name": "8",
+        "sex": "M",
+        "level": "2",
+        "noparents": "True",
+        "mother": "5",
+        "father": "6"
+    },
+    {
+        "name": "9",
+        "display_name": "",
+        "sex": "F",
+        "father": "8",
+        "mother": "7",
+        "noChild": "True"
+    }
+]

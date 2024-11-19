@@ -1,0 +1,134 @@
+[
+    {
+        "name": "1",
+        "sex": "M",
+        "level": "0",
+        "partner": "2",
+        "status": "1",
+        "top_level": "True"
+    },
+    {
+        "name": "2",
+        "sex": "F",
+        "level": "0",
+        "status": "1",
+        "top_level": "True"
+    },
+    {
+        "name": "3",
+        "sex": "M",
+        "level": "0",
+        "partner": "4",
+        "status": "1",
+        "top_level": "True"
+    },
+    {
+        "name": "4",
+        "sex": "F",
+        "level": "0",
+        "status": "1",
+        "top_level": "True"
+    },
+    {
+        "name": "5",
+        "sex": "M",
+        "level": "1",
+        "father": "1",
+        "mother": "2"
+    },
+    {
+        "name": "6",
+        "sex": "M",
+        "level": "1",
+        "father": "1",
+        "mother": "2",
+        "partner": "16",
+        "divorced": "7"
+    },
+    {
+        "name": "7",
+        "sex": "F",
+        "level": "1",
+        "father": "3",
+        "mother": "4",
+        "divorced": "6"
+    },
+    {
+        "name": "8",
+        "sex": "M",
+        "level": "1",
+        "father": "3",
+        "mother": "4"
+    },
+    {
+        "name": "9",
+        "sex": "M",
+        "level": "1",
+        "father": "3",
+        "mother": "4"
+    },
+    {
+        "name": "10",
+        "sex": "F",
+        "level": "2",
+        "father": "6",
+        "mother": "16"
+    },
+    {
+        "name": "11",
+        "sex": "M",
+        "level": "2",
+        "father": "6",
+        "mother": "16"
+    },
+    {
+        "name": "12",
+        "sex": "M",
+        "level": "2",
+        "father": "6",
+        "mother": "7",
+        "proband": "True",
+        "partner": "17"
+    },
+    {
+        "name": "13",
+        "sex": "F",
+        "level": "2",
+        "father": "6",
+        "mother": "7"
+    },
+    {
+        "name": "14",
+        "sex": "F",
+        "level": "3",
+        "father": "12",
+        "mother": "17"
+    },
+    {
+        "name": "15",
+        "sex": "F",
+        "level": "3",
+        "father": "12",
+        "mother": "17"
+    },
+    {
+        "name": "16",
+        "display_name": "dummy_node",
+        "sex": "F",
+        "partner": "6",
+        "level": "1",
+        "noparents": "True",
+        "father": "1",
+        "mother": "2"
+    },
+    {
+        "name": "17",
+        "display_name": "dummy_node",
+        "sex": "F",
+        "partner": "12",
+        "level": "2",
+        "noparents": "True",
+        "father": "6",
+        "mother": "7"
+    }
+]

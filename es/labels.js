@@ -8,7 +8,7 @@ import {prefixInObj} from './utils.js';
 
 export function addLabels(opts, node) {
 	// names of individuals
-	addLabel(opts, node, -(0.4 * opts.symbol_size), -(0.1 * opts.symbol_size),
+	addLabel(opts, node, -(0.75 * opts.symbol_size), (0.2 * opts.symbol_size),
 			function(d) {
 				if(opts.DEBUG)
 					return ('display_name' in d.data ? d.data.display_name : d.data.name) + '  ' + d.data.id;

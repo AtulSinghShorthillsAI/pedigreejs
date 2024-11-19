@@ -1,0 +1,31 @@
+[
+    {
+        "name": "1",
+        "sex": "M",
+        "level": "0",
+        "partner": "2",
+        "top_level": "True"
+    },
+    {
+        "name": "2",
+        "sex": "F",
+        "level": "0",
+        "top_level": "True"
+    },
+    {
+        "name": "3",
+        "sex": "F",
+        "level": "1",
+        "father": "1",
+        "mother": "2",
+        "adopted_in": "True"
+    },
+    {
+        "name": "4",
+        "sex": "F",
+        "level": "1",
+        "father": "1",
+        "mother": "2",
+        "adopted_in": "True"
+    }
+]

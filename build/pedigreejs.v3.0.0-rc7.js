@@ -314,6 +314,22 @@ var pedigreejs = (function (exports) {
 	          "No": function () {
 	            $(this).dialog('close');
 	          }
+	        },
+	        open: function () {
+	          // Set custom styles for "Yes" button
+	          $(this).parent().find('.ui-dialog-buttonpane button:contains("Yes")').css({
+	            'background': '#ffffff',
+	            // Green
+	            'color': '#000000'
+	          });
+
+	          // Set custom styles for "No" button
+	          $(this).parent().find('.ui-dialog-buttonpane button:contains("No")').css({
+	            'background': '#eb6c67',
+	            // Red
+	            'color': '#ffffff',
+	            'border': '0.5px solid #ffffff'
+	          });
 	        }
 	      });
 	    } else {
@@ -3530,7 +3546,8 @@ var pedigreejs = (function (exports) {
 	  partner.noparents = true;
 	  let child = {
 	    "name": makeid(4),
-	    "sex": "M"
+	    "sex": "M",
+	    hidden: true
 	  };
 	  child.mother = tree_node.data.sex === 'F' ? tree_node.data.name : partner.name;
 	  child.father = tree_node.data.sex === 'F' ? partner.name : tree_node.data.name;
@@ -3639,7 +3656,7 @@ var pedigreejs = (function (exports) {
 	    // check & warn only if this is a new split
 	    if (unconnected(opts.dataset).length === 0) {
 	      console.error("individuals unconnected to pedigree ", uc);
-	      messages("Warning", "Deleting this will split the pedigree. Continue?", onDone, opts, dataset);
+	      messages("Warning", "Deleting this will split the pedigree. Do you want to continue?", onDone, opts, dataset);
 	      return;
 	    }
 	  }
@@ -3667,7 +3684,7 @@ var pedigreejs = (function (exports) {
 
 	function addLabels(opts, node) {
 	  // names of individuals
-	  addLabel(opts, node, -(0.4 * opts.symbol_size), -(0.1 * opts.symbol_size), function (d) {
+	  addLabel(opts, node, -(0.75 * opts.symbol_size), 0.2 * opts.symbol_size, function (d) {
 	    if (opts.DEBUG) return ('display_name' in d.data ? d.data.display_name : d.data.name) + '  ' + d.data.id;
 	    return 'display_name' in d.data ? d.data.display_name : '';
 	  }, undefined, ['display_name']);
@@ -4021,12 +4038,44 @@ var pedigreejs = (function (exports) {
 	    if (d.data.miscarriage || d.data.termination) return d3.symbolTriangle;
 	    return d.data.sex === "F" ? d3.symbolCircle : d3.symbolSquare;
 	  })).style("stroke", function (d) {
-	    return d.data.age && d.data.yob && !d.data.exclude ? "#303030" : "black";
+	    if (d.data.proband) {
+	      return "#86af49";
+	    } else if (d.data.sex === "M") {
+	      return "#92a8d1";
+	    } else if (d.data.sex === "F") {
+	      return "#c94c4c";
+	    } else {
+	      return "#77a8a8";
+	    }
 	  }).style("stroke-width", function (d) {
-	    return d.data.age && d.data.yob && !d.data.exclude ? ".3em" : ".2em";
+	    if (d.data.proband) {
+	      return ".55em";
+	    }
+	    return d.data.age && d.data.yob && !d.data.exclude ? ".4em" : ".3em";
 	  }).style("stroke-dasharray", function (d) {
 	    return !d.data.exclude ? null : "3, 3";
 	  }).style("fill", "none");
+	  // .style("filter", function (d) {
+	  // 	if(d.data.sex==="M"){
+	  // 		return "drop-shadow(3px 1px 1px #4444dd)";
+	  // 	} else if (d.data.sex ==="F"){
+	  // 		return "drop-shadow(3px 1px 1px #eb6c67)";
+	  // 	} else return "none";
+	  // 	})
+	  // .style("filter", function (d) {
+	  // 	if(d.data.sex==="M"){
+	  // 		return "    drop-shadow(-1px -1px 0px #4444dd) drop-shadow(2px -1px 0px #4444dd)  drop-shadow(2px 2px 0px #4444dd) drop-shadow(-1px 2px 0px #4444dd)";
+	  // 	} else if (d.data.sex ==="F"){
+	  // 		return "drop-shadow(3px 1px 1px #eb6c67)";
+	  // 	} else return "none";
+	  // })
+	  // .style("stroke", function (d) {
+	  // 		if(d.data.sex==="M"){
+	  // 			return "#4444dd";
+	  // 		} else if (d.data.sex ==="F"){
+	  // 			return "5px solid #eb6c67";
+	  // 		} else return "none";
+	  // });
 
 	  // set a clippath
 	  node.filter(function (d) {
@@ -4105,7 +4154,7 @@ var pedigreejs = (function (exports) {
 	  // alive status = 0; dead status = 1
 	  node.filter(function (d) {
 	    return d.data.status === "1" || d.data.status === 1;
-	  }).append('line').style("stroke", "black").attr("x1", function (_d, _i) {
+	  }).append('line').style("stroke", "black").style("stroke-width", "0.20em").attr("x1", function (_d, _i) {
 	    return -0.6 * opts.symbol_size;
 	  }).attr("y1", function (_d, _i) {
 	    return 0.6 * opts.symbol_size;
@@ -4147,7 +4196,7 @@ var pedigreejs = (function (exports) {
 	    }
 	    return path;
 	  };
-	  partners = ped.selectAll(".partner").data(ptrLinkNodes).enter().insert("path", "g").attr("fill", "none").attr("stroke", "#000").attr("shape-rendering", "auto").attr('d', function (d, _i) {
+	  partners = ped.selectAll(".partner").data(ptrLinkNodes).enter().insert("path", "g").attr("fill", "none").attr("stroke", "#000").attr("stroke-width", "0.2em").attr("shape-rendering", "auto").attr('d', function (d, _i) {
 	    let node1 = getNodeByName(flattenNodes, d.mother.data.name);
 	    let node2 = getNodeByName(flattenNodes, d.father.data.name);
 	    let consanguity$1 = consanguity(node1, node2, opts);
@@ -4178,7 +4227,7 @@ var pedigreejs = (function (exports) {
 	      path = draw_path(clash, dx, dy1, dy2, parent_node, 0);
 	    }
 	    let divorce_path = "";
-	    if (divorced && !clash) divorce_path = "M" + (x1 + (x2 - x1) * .66 + 6) + "," + (dy1 - 6) + "L" + (x1 + (x2 - x1) * .66 - 6) + "," + (dy1 + 6) + "M" + (x1 + (x2 - x1) * .66 + 10) + "," + (dy1 - 6) + "L" + (x1 + (x2 - x1) * .66 - 2) + "," + (dy1 + 6);
+	    if (divorced && !clash) divorce_path = "M" + (x1 + (x2 - x1) * .66 + 6) + "," + (dy1 - 14) + "L" + (x1 + (x2 - x1) * .66 - 6) + "," + (dy1 + 14) + "M" + (x1 + (x2 - x1) * .66 + 13) + "," + (dy1 - 14) + "L" + (x1 + (x2 - x1) * .66 + 1) + "," + (dy1 + 14);
 	    if (consanguity$1) {
 	      // consanguinous, draw double line between partners
 	      dy1 = d.mother.x < d.father.x ? d.mother.y : d.father.y;

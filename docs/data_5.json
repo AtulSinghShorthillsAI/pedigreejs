@@ -1,0 +1,189 @@
+[
+    {
+        "name": "1",
+        "sex": "M",
+        "level": "0",
+        "partner": "24",
+        "top_level": "True"
+    },
+    {
+        "name": "2",
+        "sex": "M",
+        "level": "1",
+        "partner": "3",
+        "noparents": "True",
+        "mother": "24",
+        "father": "1"
+    },
+    {
+        "name": "3",
+        "sex": "F",
+        "level": "1",
+        "father": "1",
+        "mother": "24"
+    },
+    {
+        "name": "4",
+        "sex": "F",
+        "level": "1",
+        "father": "1",
+        "mother": "24"
+    },
+    {
+        "name": "5",
+        "sex": "M",
+        "level": "1",
+        "partner": "6",
+        "noparents": "True",
+        "mother": "24",
+        "father": "1"
+    },
+    {
+        "name": "6",
+        "sex": "F",
+        "level": "1",
+        "noparents": "True",
+        "mother": "24",
+        "father": "1"
+    },
+    {
+        "name": "7",
+        "sex": "M",
+        "level": "2",
+        "father": "2",
+        "mother": "3"
+    },
+    {
+        "name": "8",
+        "sex": "M",
+        "level": "2",
+        "father": "2",
+        "mother": "3"
+    },
+    {
+        "name": "9",
+        "sex": "F",
+        "level": "2",
+        "father": "2",
+        "mother": "3"
+    },
+    {
+        "name": "10",
+        "sex": "F",
+        "level": "2",
+        "father": "2",
+        "mother": "3"
+    },
+    {
+        "name": "11",
+        "sex": "F",
+        "level": "2",
+        "father": "2",
+        "mother": "3"
+    },
+    {
+        "name": "12",
+        "sex": "F",
+        "level": "2",
+        "father": "2",
+        "mother": "3",
+        "partner": "13",
+        "divorced": "13"
+    },
+    {
+        "name": "13",
+        "sex": "M",
+        "level": "2",
+        "father": "5",
+        "mother": "6",
+        "partner": "14",
+        "divorced": "12"
+    },
+    {
+        "name": "14",
+        "sex": "F",
+        "level": "2",
+        "noparents": "True",
+        "mother": "6",
+        "father": "5"
+    },
+    {
+        "name": "15",
+        "sex": "M",
+        "level": "2",
+        "father": "5",
+        "mother": "6"
+    },
+    {
+        "name": "16",
+        "sex": "F",
+        "level": "3",
+        "father": "23",
+        "mother": "22"
+    },
+    {
+        "name": "17",
+        "sex": "F",
+        "level": "3",
+        "father": "23",
+        "mother": "22"
+    },
+    {
+        "name": "18",
+        "sex": "M",
+        "level": "3",
+        "father": "23",
+        "mother": "22"
+    },
+    {
+        "name": "19",
+        "sex": "F",
+        "level": "3",
+        "father": "13",
+        "mother": "12",
+        "proband": "True"
+    },
+    {
+        "name": "20",
+        "sex": "F",
+        "level": "3",
+        "father": "13",
+        "mother": "12"
+    },
+    {
+        "name": "21",
+        "sex": "M",
+        "level": "3",
+        "father": "13",
+        "mother": "14"
+    },
+    {
+        "name": "22",
+        "display_name": "dummy_mother",
+        "sex": "F",
+        "partner": "23",
+        "level": "2",
+        "noparents": "True",
+        "mother": "3",
+        "father": "2"
+    },
+    {
+        "name": "23",
+        "display_name": "dummy_father",
+        "sex": "M",
+        "partner": "22",
+        "level": "2",
+        "noparents": "True",
+        "mother": "3",
+        "father": "2"
+    },
+    {
+        "name": "24",
+        "display_name": "dummy_node",
+        "sex": "F",
+        "partner": "1",
+        "level": "0",
+        "noparents": "True",
+        "top_level": "True"
+    }
+]

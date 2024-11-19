@@ -164,10 +164,12 @@ function showDialog(title, msg, onConfirm, opts, dataset) {
  */
 export function messages(title, msg, onConfirm, opts, dataset) {
 	try {
+		
 		if(onConfirm) {
 			$('<div id="msgDialog">'+msg+'</div>').dialog({
 					modal: true,
 					title: title,
+					
 					width: 350,
 					buttons: {
 						"Yes": function () {
@@ -177,7 +179,23 @@ export function messages(title, msg, onConfirm, opts, dataset) {
 						"No": function () {
 							$(this).dialog('close');
 						}
+					},
+					open: function() {
+						// Set custom styles for "Yes" button
+						$(this).parent().find('.ui-dialog-buttonpane button:contains("Yes")').css({
+							'background': '#ffffff', // Green
+							'color': '#000000',
+
+						});
+	
+						// Set custom styles for "No" button
+						$(this).parent().find('.ui-dialog-buttonpane button:contains("No")').css({
+							'background': '#eb6c67', // Red
+							'color': '#ffffff',
+							'border': '0.5px solid #ffffff',
+						});
 					}
+
 				});
 		} else {
 			$('<div id="msgDialog">'+msg+'</div>').dialog({

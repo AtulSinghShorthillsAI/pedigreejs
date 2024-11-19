@@ -1,0 +1,125 @@
+[
+    {
+        "name": "1",
+        "sex": "F",
+        "level": "0",
+        "partner": "2",
+        "top_level": "True"
+    },
+    {
+        "name": "2",
+        "sex": "M",
+        "level": "0",
+        "top_level": "True"
+    },
+    {
+        "name": "3",
+        "sex": "M",
+        "level": "1",
+        "partner": "4",
+        "noparents": "True",
+        "mother": "1",
+        "father": "2"
+    },
+    {
+        "name": "4",
+        "sex": "F",
+        "level": "1",
+        "father": "2",
+        "mother": "1"
+    },
+    {
+        "name": "5",
+        "sex": "M",
+        "level": "1",
+        "father": "2",
+        "mother": "1"
+    },
+    {
+        "name": "6",
+        "sex": "F",
+        "level": "1",
+        "father": "2",
+        "mother": "1"
+    },
+    {
+        "name": "7",
+        "sex": "M",
+        "level": "2",
+        "father": "3",
+        "mother": "4"
+    },
+    {
+        "name": "8",
+        "sex": "M",
+        "level": "2",
+        "partner": "9",
+        "divorced": "9",
+        "noparents": "True",
+        "mother": "4",
+        "father": "3"
+    },
+    {
+        "name": "9",
+        "sex": "F",
+        "level": "2",
+        "father": "3",
+        "mother": "4",
+        "partner": "10",
+        "divorced": "8"
+    },
+    {
+        "name": "10",
+        "sex": "M",
+        "level": "2",
+        "partner": "11",
+        "divorced": "11",
+        "noparents": "True",
+        "mother": "4",
+        "father": "3"
+    },
+    {
+        "name": "11",
+        "sex": "F",
+        "level": "2",
+        "divorced": "10",
+        "noparents": "True",
+        "mother": "4",
+        "father": "3"
+    },
+    {
+        "name": "12",
+        "sex": "M",
+        "level": "3",
+        "father": "8",
+        "mother": "9"
+    },
+    {
+        "name": "13",
+        "sex": "F",
+        "level": "3",
+        "father": "8",
+        "mother": "9"
+    },
+    {
+        "name": "14",
+        "sex": "F",
+        "level": "3",
+        "father": "10",
+        "mother": "9"
+    },
+    {
+        "name": "15",
+        "sex": "F",
+        "level": "3",
+        "father": "10",
+        "mother": "11"
+    },
+    {
+        "name": "16",
+        "sex": "M",
+        "level": "3",
+        "father": "10",
+        "mother": "11"
+    }
+]
