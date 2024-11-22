@@ -664,13 +664,13 @@ export function adjust_coords(opts, root, flattenNodes) {
 					let clashInitSize =  clashInit === null ? 0 : clashInit.length;
 					let separation = parentSecond.x - parentFirst.x;
 					parentFirst.x = xmid - parentSecond.x + xmid;
-
 					let clash = check_ptr_link_clashes(opts, {'mother': mother, 'father': father}) 
 					let clashSize = clash === null ? 0 : clash.length;
 					if(overlap(opts, root.descendants(), parentFirst.x, parentFirst.depth, [parentFirst.data.name]) || (clashSize - clashInitSize > 0)){
 						parentFirst.x=parentSecond.x - separation;
 						xmid = (parentFirst.x+parentSecond.x)/2;
 					}
+					
 
 				} else if (xmid >=parentSecond.x || parentSecond.x - xmid <=intersectionThreshold){
 					let clashInit = check_ptr_link_clashes(opts, {'mother': mother, 'father': father})
@@ -684,7 +684,9 @@ export function adjust_coords(opts, root, flattenNodes) {
 						xmid = (parentFirst.x+parentSecond.x)/2;
 
 					}
+
 				}
+
 				// let xmid = (father.x + mother.x) / 2;
 				if(!overlap(opts, root.descendants(), xmid, node.depth, [node.data.name])) {
 					node.x = xmid;   // centralise parent nodes

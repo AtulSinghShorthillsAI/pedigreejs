@@ -83,7 +83,7 @@
     var svg_width = parent_width - margin;
 
     // Function to load the JSON dataset from a file
-    fetch('data_1.json')
+    fetch('data_8.json')
       .then(response => response.json())
       .then(dataset => {
         // Now use the dynamically loaded dataset
@@ -92,7 +92,7 @@
           btn_target: "history_ex1",
           store_type: "session",
           width: svg_width,
-          height: 1068,
+          height: 720,
           symbol_size: 50,
           edit: true,
           diseases: [{ type: "diabetes", colour: "#F68F35" }],

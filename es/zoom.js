@@ -53,8 +53,8 @@ export function scale_to_fit(opts) {
 	if(k < opts.zoomIn) zm.scaleExtent([k, opts.zoomOut]);
 
 	let ped = get_pedigree_center(opts);
-	svg.call(zm.translateTo, ped.x-(opts.symbol_size), ped.y-(opts.symbol_size));
-	setTimeout(function(){svg.transition().duration(700).call(zm.scaleTo, k)}, 400);
+	svg.call(zm.translateTo, ped.x - opts.symbol_size, ped.y - opts.symbol_size);
+	svg.transition().call(zm.scaleTo, k);
 }
 
 function zooming(e, opts) {

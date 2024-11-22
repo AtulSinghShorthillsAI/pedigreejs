@@ -396,96 +396,162 @@ function setLineDragPosition(x1, y1, x2, y2, translate) {
 }
 
 function capitaliseFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 // if opt.edit is set true (rather than given a function) this is called to edit node attributes
 function openEditDialog(opts, d) {
-	$('#node_properties').dialog({
-	    autoOpen: false,
-		
-	    title: d.data.display_name,
-		width: ($(window).width() > 800 ? 450 : $(window).width()- 30)
+  $("#node_properties").dialog({
+    autoOpen: false,
+    title: d.data.display_name,
+    modal: true,
+    width: $(window).width() > 800 ? 450 : $(window).width() - 30,
+    zIndex: 100,
+  });
+  let table =
+    "<table id='person_details' class='table' width='600' height='500' border='0'>";
+  table +=
+    "<tr><td style='text-align:right; padding-right: 26px;'>Unique ID</td><td><input class='form-control' type='text' id='id_name' name='name' value=" +
+    (d.data.name ? d.data.name : "") +
+    "></td></tr>";
+  table +=
+    "<tr><td style='text-align:right; padding-right: 26px;'>First name</td><td><input class='form-control' type='text' id='id_display_name' name='display_name' value=" +
+    (d.data.display_name ? d.data.display_name : "") +
+    "></td><td style='text-align:right;padding-right: 26px;'>Last name</td><td><input class='form-control' type='text' id='id_last_name' name='last_name' value=" +
+    (d.data.last_name ? d.data.last_name : "") +
+    "></td></tr>";
+  table +=
+    "<tr><td style='text-align:right; padding-right: 20px;'>Year Of Birth</td><td><input class='form-control' type='number' id='id_yob' min='1900' max='2050' name='yob' style='width:7em' value=" +
+    (d.data.yob ? d.data.yob : "") +
+    "></td> <td style='text-align:right;padding-right: 26px;'>Age</td><td><input class='form-control' type='number' id='id_age' min='0' max='120' name='age' style='width:7em' value=" +
+    (d.data.age ? d.data.age : "") +
+    "></td></tr>";
+  table +=
+    "<tr><td style='text-align:right;padding-right:20px;'>Year Of Death</td><td><input class='form-control' type='number' id='id_yod' min='1900' max='2050' name='yod' style='width:7em' value=" +
+    (d.data.yod ? d.data.yod : "") +
+    "></td><td style='text-align:right;padding-right: 26px;'>Age of death</td><td><input class='form-control' type='number' id='id_age_age_of_death' min='0' max='120' name='age_of_death' style='width:7em' value=" +
+    (d.data.age_of_death ? d.data.age_of_death : "") +
+    "></td></tr>";
+  table +=
+    '<tr><td colspan="2" id="id_sex">' +
+    '<label class="radio-inline" style="padding-right: 16px;"><input type="radio" name="sex" value="M" ' +
+    (d.data.sex === "M" ? "checked" : "") +
+    'style="margin-right: 5px;">Male</label>' +
+    '<label class="radio-inline" style="padding-right: 16px;"><input type="radio" name="sex" value="F" ' +
+    (d.data.sex === "F" ? "checked" : "") +
+    ' style="margin-right: 5px;">Female</label>' +
+    '<label class="radio-inline" style="padding-right: 16px;"><input type="radio" name="sex" value="U" style="margin-right: 5px;">Unknown</label>' +
+    "</td></tr>";
+  // alive status = 0; dead status = 1
+  table +=
+    '<tr><td colspan="2" id="id_status">' +
+    '<label class="checkbox-inline" style="padding-right: 16px;"><input type="radio" name="status" value="0" ' +
+    (parseInt(d.data.status) === 0 ? "checked" : "") +
+    ' style="margin-right: 5px;">&thinsp;Alive</label>' +
+    '<label class="checkbox-inline" style="padding-right: 16px;"><input type="radio" name="status" value="1" ' +
+    (parseInt(d.data.status) === 1 ? "checked" : "") +
+    ' style="margin-right: 5px;">&thinsp;Deceased</label>' +
+    "</td></tr>";
+  $("#id_status input[value='" + d.data.status + "']").prop("checked", true);
 
-	});
-	let table = "<table id='person_details' class='table' width='600' height='500' border='0'>";
+  // switches
+  table +=
+    "<tr><td style='text-align:left; padding-right:10px;'><strong>Father</strong></td><td><input class='form-control' type='text' id='id_father' name='father' value='" +
+    (d.data.father ? d.data.father : "") +
+    "'></td></tr>";
+  table +=
+    "<tr><td style='text-align:left; padding-right:10px;'><strong>Mother</strong></td><td><input class='form-control' type='text' id='id_mother' name='mother' value='" +
+    (d.data.mother ? d.data.mother : "") +
+    "'></td></tr>";
+  table +=
+    "<tr><td style='text-align:left; padding-right:10px;'><strong>No_parents</strong></td><td><input class='form-control' type='text' id='id_noparents' name='noparents' value='" +
+    (d.data.noparents ? d.data.noparents : "") +
+    "'></td></tr>";
+  let switches = [
+    "adopted_in",
+    "adopted_out",
+    "miscarriage",
+    "stillbirth ",
+    "termination",
+    "Abortion",
+  ];
+  table +=
+    '<tr><td colspan="2"><strong>Reproduction:</strong></td></tr><tr><td colspan="2" >' +
+    switches
+      .map(
+        (attr, i) =>
+          (i === 2 || i === 4 ? '</td></tr><tr><td colspan="4">' : "") +
+          '<label class="checkbox-inline" style="display: inline-flex; align-items: center; white-space: nowrap; margin-right: 16px;""><input type="checkbox" id="id_' +
+          attr +
+          '" name="' +
+          attr +
+          '" value="0" ' +
+          (d.data[attr] ? "checked" : "") +
+          ">&thinsp;" +
+          capitaliseFirstLetter(attr.replace("_", " ")) +
+          "</label>"
+      )
+      .join("") +
+    "</td></tr>";
+  table += "</td></tr>";
 
-
-	table += "<tr><td style='text-align:right; padding-right: 26px;'>Unique ID</td><td><input class='form-control' type='text' id='id_name' name='name' value="+
-    (d.data.name ? d.data.name : "")+"></td></tr>";
-	table += "<tr><td style='text-align:right; padding-right: 26px;'>First name</td><td><input class='form-control' type='text' id='id_display_name' name='display_name' value="+
-	(d.data.display_name ? d.data.display_name : "")+"></td><td style='text-align:right'>Last name</td><td><input class='form-control' type='text' id='id_last_name' name='last_name' value="+
-	(d.data.last_name ? d.data.last_name : "")+"></td></tr>";
-
-	table += "<tr><td style='text-align:right; padding-right: 20px;'>Year Of Birth</td><td><input class='form-control' type='number' id='id_yob' min='1900' max='2050' name='yob' style='width:7em' value="+
-    (d.data.yob ? d.data.yob : "")+"></td> <td style='text-align:right'>Age</td><td><input class='form-control' type='number' id='id_age' min='0' max='120' name='age' style='width:7em' value="+
-    (d.data.age ? d.data.age : "")+"></td></tr>";
-
-	table += "<tr><td style='text-align:right'>Year Of Death</td><td><input class='form-control' type='number' id='id_yod' min='1900' max='2050' name='yod' style='width:7em' value="+
-    (d.data.yod ? d.data.yod : "")+"></td><td style='text-align:right'>Age of death</td><td><input class='form-control' type='number' id='id_age_age_of_death' min='0' max='120' name='age_of_death' style='width:7em' value="+
-		(d.data.age_of_death ? d.data.age_of_death : "")+"></td></tr>";
-		table += '<tr><td colspan="2" id="id_sex">' +
-			 '<label class="radio-inline"><input type="radio" name="sex" value="M" '+(d.data.sex === 'M' ? "checked" : "")+'>Male</label>' +
-			 '<label class="radio-inline"><input type="radio" name="sex" value="F" '+(d.data.sex === 'F' ? "checked" : "")+'>Female</label>' +
-			 '<label class="radio-inline"><input type="radio" name="sex" value="U">Unknown</label>' +
-			 '</td></tr>';
-	// alive status = 0; dead status = 1
-	table += '<tr><td colspan="2" id="id_status">' +
-			 '<label class="checkbox-inline"><input type="radio" name="status" value="0" '+(parseInt(d.data.status) === 0 ? "checked" : "")+'>&thinsp;Alive</label>' +
-			 '<label class="checkbox-inline"><input type="radio" name="status" value="1" '+(parseInt(d.data.status) === 1 ? "checked" : "")+'>&thinsp;Deceased</label>' +
-			 '</td></tr>';
-	$("#id_status input[value='"+d.data.status+"']").prop('checked', true);
-
-	// switches
-	table += "<tr><td style='text-align:left; padding-right:10px;'><strong>Father</strong></td><td><input class='form-control' type='text' id='id_father' name='father' value='" +
-    (d.data.father ? d.data.father : "") + "'></td></tr>";
-	table += "<tr><td style='text-align:left; padding-right:10px;'><strong>Mother</strong></td><td><input class='form-control' type='text' id='id_mother' name='mother' value='" +
-    (d.data.mother ? d.data.mother : "") + "'></td></tr>";	
-	table += "<tr><td style='text-align:left; padding-right:10px;'><strong>No_parents</strong></td><td><input class='form-control' type='text' id='id_noparents' name='noparents' value='" +
-    (d.data.noparents ? d.data.noparents : "") + "'></td></tr>";
-
-	let switches = ["adopted_in", "adopted_out", "miscarriage", "stillbirth ", "termination", "Abortion"];
-	table += '<tr><td colspan="2"><strong>Reproduction:</strong></td></tr><tr><td colspan="2">' +
-  	switches.map((attr, i) => (i === 2 || i === 4 ? '</td></tr><tr><td colspan="2">' : '') + 
-    '<label class="checkbox-inline" style="white-space: nowrap;"><input type="checkbox" id="id_'+attr+
-    '" name="'+attr+'" value="0" '+(d.data[attr] ? "checked" : "")+'>&thinsp;' +
-    capitaliseFirstLetter(attr.replace('_', ' ')) + '</label>'
-  ).join('') + '</td></tr>';
-	table += '</td></tr>';
-
-	//
-	let exclude = ["children", "name", "parent_node", "top_level", "id", "noparents",
-		           "level", "age", "sex", "status", "display_name", "mother", "father",
-		           "yob", "mztwin", "dztwin"];
-	$.merge(exclude, switches);
-	table += '<tr><td colspan="2"><strong>Age of Diagnosis:</strong></td></tr>';
-	$.each(opts.diseases, function(k, v) {
-		exclude.push(v.type+"_diagnosis_age");
-
-		let disease_colour = '&thinsp;<span style="padding-left:5px;background:'+opts.diseases[k].colour+'"></span>';
-		let diagnosis_age = d.data[v.type + "_diagnosis_age"];
-
-		table += "<tr><td style='text-align:right'>"+capitaliseFirstLetter(v.type.replace("_", " "))+
-					disease_colour+"&nbsp;</td><td>" +
-					"<input class='form-control' id='id_" +
-					v.type + "_diagnosis_age_0' max='110' min='0' name='" +
-					v.type + "_diagnosis_age_0' style='width:5em' type='number' value='" +
-					(diagnosis_age !== undefined ? diagnosis_age : "") +"'></td></tr>";
-	});
-
-	table += '<tr><td colspan="2" style="line-height:1px;"></td></tr>';
-	
-	table += "<tr><td style='text-align:right; padding-right: 20px;'><strong>Additional Info:</strong></td><td><input class='form-control' type='text' id='id_additional_information' name='additional_information' value="+
-    (d.data.additional_information ? d.data.additional_information : "")+"></td></tr>";
-        '</textarea></td></tr>';
-	table += '</table>';
-	$('#node_properties').html(table);
-	$('#node_properties').dialog('open');
-
-	$('#node_properties input[type=radio], #node_properties input[type=checkbox], #node_properties input[type=text], #node_properties input[type=number]').change(function() {
-		save(opts);
-    });
-	return;
+  //
+  let exclude = [
+    "children",
+    "name",
+    "parent_node",
+    "top_level",
+    "id",
+    "noparents",
+    "level",
+    "age",
+    "sex",
+    "status",
+    "display_name",
+    "mother",
+    "father",
+    "yob",
+    "mztwin",
+    "dztwin",
+  ];
+  $.merge(exclude, switches);
+  table += '<tr><td colspan="2"><strong>Age of Diagnosis:</strong></td></tr>';
+  $.each(opts.diseases, function (k, v) {
+    exclude.push(v.type + "_diagnosis_age");
+    let disease_colour =
+      '&thinsp;<span style="padding-left:5px;background:' +
+      opts.diseases[k].colour +
+      '"></span>';
+    let diagnosis_age = d.data[v.type + "_diagnosis_age"];
+    table +=
+      "<tr><td style='text-align:right'>" +
+      capitaliseFirstLetter(v.type.replace("_", " ")) +
+      disease_colour +
+      "&nbsp;</td><td>" +
+      "<input class='form-control' id='id_" +
+      v.type +
+      "_diagnosis_age_0' max='110' min='0' name='" +
+      v.type +
+      "_diagnosis_age_0' style='width:5em' type='number' value='" +
+      (diagnosis_age !== undefined ? diagnosis_age : "") +
+      "'></td></tr>";
+  });
+  table += '<tr><td colspan="2" style="line-height:1px;"></td></tr>';
+  table +=
+    '<tr><td colspan="2"><strong>Additional Information:</strong></td></tr>';
+  table +=
+    "<tr><td style='text-align:right; padding-right: 20px;'><strong>Additional Info:</strong></td><td><input class='form-control' type='text' id='id_additional_information' name='additional_information' style='width: 250px; height: 50px;' value='" +
+    (d.data.additional_information ? d.data.additional_information : "") +
+    "'></td></tr>";
+  table += "</table>";
+  $("#node_properties").html(table);
+  $("#node_properties").dialog("open");
+  $(
+    "#node_properties input[type=radio], #node_properties input[type=checkbox], #node_properties input[type=text], #node_properties input[type=number]"
+  ).change(function () {
+    save(opts);
+  });
+  return;
 }
 
 

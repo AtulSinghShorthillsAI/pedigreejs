@@ -161,15 +161,6 @@ export function build(options) {
 						return d3.symbolTriangle;
 					return d.data.sex === "F" ? d3.symbolCircle : d3.symbolSquare;}))
 		.style("stroke", function (d) {
-			if(d.data.proband){
-				return "#86af49";
-			} else if(d.data.sex==="M"){
-				return "#92a8d1";
-			} else if (d.data.sex ==="F"){
-				return "#c94c4c";
-			} else {
-				return "#77a8a8";
-			}
 			return d.data.age && d.data.yob && !d.data.exclude ? "#303030" : "black";
 		})
 		.style("stroke-width", function (d) {
@@ -378,7 +369,7 @@ export function build(options) {
 					dy1 = (d.mother.x < d.father.x ? d.mother.y : d.father.y);
 					dy2 = (d.mother.x < d.father.x ? d.father.y : d.mother.y);
 
-					let cshift = 3;
+					let cshift = 9;
 					if(Math.abs(dy1-dy2) > 0.1) {	  // DIFFERENT LEVEL
 						return	"M" + x1 + "," + dy1 + "L" + x2 + "," + dy2 +
 								"M" + x1 + "," + (dy1 - cshift) + "L" + x2 + "," + (dy2 - cshift);
