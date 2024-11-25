@@ -303,11 +303,18 @@ export function build(options) {
 			if(parent_node.x > dx1 && parent_node.x < dx2)
 				parent_node.y = dy2;
 
-			path += "L" + dx1 + "," +  (dy1 - cshift) +
-					"L" + dx1 + "," +  (dy2 - cshift) +
-					"L" + dx2 + "," +  (dy2 - cshift) +
-					"L" + dx2 + "," +  (dy1 - cshift);
-			j = k;
+			path +=
+            "L" + (dx1 - 25) + "," + (dy1 - cshift) +
+            "Q" + (dx1 - 5) + "," + (dy1 - cshift) + " " + (dx1 - 5) + "," + (dy2 - cshift) +
+            "L" + (dx1 - 5) + "," + (dy2 - cshift - 10) +
+            "Q" + (dx1 - 5) + "," + (dy2 - cshift - 20) + " " + (dx1 + 5) + "," + (dy2 - cshift - 20) +
+            "L" + (dx2 - 2) + "," + (dy2 - cshift - 20) +
+            "Q" + (dx2 + 8) + "," + (dy2 - cshift - 20) + " " + (dx2 + 8) + "," + (dy2 - cshift - 10) +
+            "L" + (dx2 + 8) + "," + (dy2 - cshift) +
+            "Q" + (dx2 + 8) + "," + (dy1 - cshift) + " " + (dx2 + 28) + "," + (dy1 - cshift) +
+            "L" + (dx2 + 40) + "," + (dy1 - cshift);
+        
+        	j = k;
 		}
 		return path;
 	}
@@ -464,7 +471,7 @@ export function build(options) {
 					}
 				}
 
-				return "M" + (d.source.x) + "," + (d.source.y ) +
+				return "M" + (d.source.x) + "," + (d.source.y) +
 					   "V" + ((d.source.y + d.target.y) / 2) +
 					   "H" + (d.target.x) +
 					   "V" + (d.target.y);
