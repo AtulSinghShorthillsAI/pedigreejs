@@ -399,72 +399,134 @@ function capitaliseFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+
+
+
 // if opt.edit is set true (rather than given a function) this is called to edit node attributes
 function openEditDialog(opts, d) {
+  let changeFlag = false;
   $("#node_properties").dialog({
     autoOpen: false,
     title: d.data.display_name,
     modal: true,
-    width: $(window).width() > 800 ? 450 : $(window).width() - 30,
-    zIndex: 100,
+    width: $(window).width() > 800 ? 800 : $(window).width() - 30,
+
+    buttons: [
+    {
+        text: "Cancel",
+        class: "ui-cancel-button",
+        click: function () {
+			handleCancelClose();
+		}
+	},
+	{
+        text: "Save",
+        class: "ui-save-button",
+        click: function () {
+          save(opts);
+          $(this).dialog("close");
+        },
+      },
+    ],
   });
+
+  function handleCancelClose() {
+	if (changeFlag) {
+	  $(
+		`<div>
+		<h2 style="margin: 0; font-weight: bold;">Any changes made will be lost.</h2>
+		<p style="margin-top: 10px;">Do you want to continue?</p>
+	  </div>`
+	  ).dialog({
+		modal: true,
+		title: "",
+		minWidth: 350,
+		width: $("#node_properties").dialog("option", "width") * 0.67,
+		open: function () {
+			// Remove the default titlebar styling
+			$(this).parent().find(".ui-dialog-titlebar").remove();
+		  },
+		buttons: [
+		  {
+			text: "Yes",
+			class: "ui-yes-button",
+			click: function () {
+			  $(this).dialog("close"); // Close confirmation dialog
+			  $("#node_properties").dialog("close"); // Close main dialog
+			},
+		  },
+		  {
+			text: "No",
+			class: "ui-no-button",
+			click: function () {
+			  $(this).dialog("close"); // Close confirmation dialog
+			},
+		  },
+		],
+	  });
+	} else {
+	  $("#node_properties").dialog("close");
+	}
+  }
+  
+
   let table =
-    "<table id='person_details' class='table' width='600' height='500' border='0'>";
+    "<table id='person_details' style='border-collapse: collapse; margin-left: 1rem; margin-right: 1rem; margin-top: 1.5rem; max-width: 700px' class='edit_table' width='100%' height='500' border='0'>";
   table +=
-    "<tr><td style='text-align:right; padding-right: 26px;'>Unique ID</td><td><input class='form-control' type='text' id='id_name' name='name' value=" +
+    "<tr><td style='padding-bottom: 1rem;'>Unique ID</td><td style='padding-bottom: 1rem;'><input class='form-control' type='text' id='id_name' name='name' value=" +
     (d.data.name ? d.data.name : "") +
     "></td></tr>";
   table +=
-    "<tr><td style='text-align:right; padding-right: 26px;'>First name</td><td><input class='form-control' type='text' id='id_display_name' name='display_name' value=" +
+    "<tr><td>First Name</td><td><input class='form-control' type='text' id='id_display_name' name='display_name' value=" +
     (d.data.display_name ? d.data.display_name : "") +
-    "></td><td style='text-align:right;padding-right: 26px;'>Last name</td><td><input class='form-control' type='text' id='id_last_name' name='last_name' value=" +
+    "></td><td style='padding-left: 8px'>Last Name</td><td><input class='form-control' style='padding-left: 8px; max-width: ' type='text' id='id_last_name' name='last_name' value=" +
     (d.data.last_name ? d.data.last_name : "") +
     "></td></tr>";
   table +=
-    "<tr><td style='text-align:right; padding-right: 20px;'>Year Of Birth</td><td><input class='form-control' type='number' id='id_yob' min='1900' max='2050' name='yob' style='width:7em' value=" +
+    "<tr><td>Year Of Birth</td><td><input class='form-control' type='number' id='id_yob' min='1900' max='2050' name='yob' style='width:7em' value=" +
     (d.data.yob ? d.data.yob : "") +
-    "></td> <td style='text-align:right;padding-right: 26px;'>Age</td><td><input class='form-control' type='number' id='id_age' min='0' max='120' name='age' style='width:7em' value=" +
+    "></td> <td>Age</td><td><input class='form-control' type='number' id='id_age' min='0' max='120' name='age' style='width:7em' value=" +
     (d.data.age ? d.data.age : "") +
     "></td></tr>";
   table +=
-    "<tr><td style='text-align:right;padding-right:20px;'>Year Of Death</td><td><input class='form-control' type='number' id='id_yod' min='1900' max='2050' name='yod' style='width:7em' value=" +
+    "<tr><td>Year Of Death</td><td><input class='form-control' type='number' id='id_yod' min='1900' max='2050' name='yod' style='width:7em' value=" +
     (d.data.yod ? d.data.yod : "") +
-    "></td><td style='text-align:right;padding-right: 26px;'>Age of death</td><td><input class='form-control' type='number' id='id_age_age_of_death' min='0' max='120' name='age_of_death' style='width:7em' value=" +
+    "></td><td>Age of death</td><td><input class='form-control' type='number' id='id_age_age_of_death' min='0' max='120' name='age_of_death' style='width:7em' value=" +
     (d.data.age_of_death ? d.data.age_of_death : "") +
     "></td></tr>";
   table +=
-    '<tr><td colspan="2" id="id_sex">' +
-    '<label class="radio-inline" style="padding-right: 16px;"><input type="radio" name="sex" value="M" ' +
+    '<tr><td>Sex</td><td colspan="2" id="id_sex">' +
+    '<label class="radio-inline" ><input type="radio" name="sex" value="M" ' +
     (d.data.sex === "M" ? "checked" : "") +
-    'style="margin-right: 5px;">Male</label>' +
-    '<label class="radio-inline" style="padding-right: 16px;"><input type="radio" name="sex" value="F" ' +
+    ' style="margin-right: 10px;">Male</label>' +
+    '<label class="radio-inline" style="margin-left: 5px" ><input type="radio" name="sex" value="F" ' +
     (d.data.sex === "F" ? "checked" : "") +
-    ' style="margin-right: 5px;">Female</label>' +
-    '<label class="radio-inline" style="padding-right: 16px;"><input type="radio" name="sex" value="U" style="margin-right: 5px;">Unknown</label>' +
+    ' style="margin-right: 10px;">Female</label>' +
+    '<label class="radio-inline" style="margin-left: 5px; padding-right: 16px;"><input type="radio" name="sex" value="U" style="margin-right: 10px;">Unknown</label>' +
     "</td></tr>";
   // alive status = 0; dead status = 1
   table +=
-    '<tr><td colspan="2" id="id_status">' +
-    '<label class="checkbox-inline" style="padding-right: 16px;"><input type="radio" name="status" value="0" ' +
+    '<tr><td>Individual is</td><td colspan="2" id="id_status">' +
+    '<label class="checkbox-inline" ><input type="radio" name="status" value="0" ' +
     (parseInt(d.data.status) === 0 ? "checked" : "") +
-    ' style="margin-right: 5px;">&thinsp;Alive</label>' +
-    '<label class="checkbox-inline" style="padding-right: 16px;"><input type="radio" name="status" value="1" ' +
+    ' style="margin-right: 10px;">&thinsp;Alive</label>' +
+    '<label class="checkbox-inline" style="margin-left: 5px;" ><input type="radio" name="status" value="1" ' +
     (parseInt(d.data.status) === 1 ? "checked" : "") +
-    ' style="margin-right: 5px;">&thinsp;Deceased</label>' +
+    ' style="margin-right: 10px; margin-left: 5px;">&thinsp;Deceased</label>' +
     "</td></tr>";
   $("#id_status input[value='" + d.data.status + "']").prop("checked", true);
 
   // switches
   table +=
-    "<tr><td style='text-align:left; padding-right:10px;'><strong>Father</strong></td><td><input class='form-control' type='text' id='id_father' name='father' value='" +
+    "<tr><td><strong>Father</strong></td><td><input class='form-control' type='text' id='id_father' name='father' value='" +
     (d.data.father ? d.data.father : "") +
     "'></td></tr>";
   table +=
-    "<tr><td style='text-align:left; padding-right:10px;'><strong>Mother</strong></td><td><input class='form-control' type='text' id='id_mother' name='mother' value='" +
+    "<tr><td><strong>Mother</strong></td><td><input class='form-control' type='text' id='id_mother' name='mother' value='" +
     (d.data.mother ? d.data.mother : "") +
     "'></td></tr>";
   table +=
-    "<tr><td style='text-align:left; padding-right:10px;'><strong>No_parents</strong></td><td><input class='form-control' type='text' id='id_noparents' name='noparents' value='" +
+    "<tr><td><strong>No_parents</strong></td><td><input class='form-control' type='text' id='id_noparents' name='noparents' value='" +
     (d.data.noparents ? d.data.noparents : "") +
     "'></td></tr>";
   let switches = [
@@ -524,7 +586,7 @@ function openEditDialog(opts, d) {
       '"></span>';
     let diagnosis_age = d.data[v.type + "_diagnosis_age"];
     table +=
-      "<tr><td style='text-align:right'>" +
+      "<tr><td style='text-align:right; padding-right: 0.5rem;'>" +
       capitaliseFirstLetter(v.type.replace("_", " ")) +
       disease_colour +
       "&nbsp;</td><td>" +
@@ -538,18 +600,16 @@ function openEditDialog(opts, d) {
   });
   table += '<tr><td colspan="2" style="line-height:1px;"></td></tr>';
   table +=
-    '<tr><td colspan="2"><strong>Additional Information:</strong></td></tr>';
-  table +=
-    "<tr><td style='text-align:right; padding-right: 20px;'><strong>Additional Info:</strong></td><td><input class='form-control' type='text' id='id_additional_information' name='additional_information' style='width: 250px; height: 50px;' value='" +
+    "<tr><td ><strong>Additional Information:</strong></td><td class='text-area-cell'><textarea type='text' class='text-area' maxlength='15000' cols='25' rows='25' wrap='soft' id='id_additional_information' name='additional_information' style='max-height: 100px;' value='" +
     (d.data.additional_information ? d.data.additional_information : "") +
-    "'></td></tr>";
+    " '></textarea></td></tr>";
   table += "</table>";
   $("#node_properties").html(table);
   $("#node_properties").dialog("open");
   $(
     "#node_properties input[type=radio], #node_properties input[type=checkbox], #node_properties input[type=text], #node_properties input[type=number]"
   ).change(function () {
-    save(opts);
+    changeFlag = true;
   });
   return;
 }

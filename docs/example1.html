@@ -20,7 +20,11 @@
 
   <style>
     body {
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
       font-size: 18px;
       line-height: 1.42857143;
       color: #333;
@@ -68,12 +72,83 @@
       text-align: center;
       padding: 0 20px;
     }
-
+    .ui-widget{
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .ui-widget-content .form-control{
+      border: 1px solid black;
+      border-radius: 2px;
+      max-width: 180px;
+    }
+    .ui-widget-content .text-area{
+      border: 1px solid black;
+      border-radius: 2px;
+    }
     .ui-widget-header{
       background: #eb6c67;
       color: #ffffff;
     }
-
+    .ui-save-button{
+      background: #eb6c67;
+      color: #ffffff;
+      border: none;
+    }
+    .ui-save-button:hover{
+      background: #eb6c67;
+      color: #ffffff;
+      border: none;
+    }
+    .ui-cancel-button{
+      background: #ffffff !important;
+      color: black !important;
+      border: 1px solid black !important;
+    }
+    .ui-cancel-button:hover{
+      background: #ffffff !important;
+      color: black !important;
+      border: 1px solid black !important;
+    }
+    .ui-no-button{
+      background: #eb6c67;
+      color: #ffffff;
+      border: none;
+    }
+    .ui-no-button:hover{
+      background: #eb6c67;
+      color: #ffffff;
+      border: none ;
+    }
+    .ui-yes-button{
+      background: #ffffff !important;
+      color: black !important;
+      border: 1px solid black !important;
+    }
+    .ui-yes-button:hover{
+      background: #ffffff !important;
+      color: black !important;
+      border: 1px solid black !important;
+    }
+    .ui-widget-content{
+      background: #ffffff;
+      border: none;
+    }
+    .ui-button:hover{
+      filter: brightness(0.90);
+    }
+    .edit_table td {
+      padding-bottom: 12px;
+      max-width: 180px;
+    }
+    .ui-dialog-titlebar-close{
+      display:none;
+    }
+    .ui-widget-content .text-area-cell {
+      max-width: 300px !important;
+    }
   </style>
 
 <script type="text/javascript">
