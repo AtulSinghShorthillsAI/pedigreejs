@@ -170,28 +170,7 @@ export function build(options) {
 			return d.data.age && d.data.yob && !d.data.exclude ? ".4em" : ".3em";
 		})
 		.style("stroke-dasharray", function (d) {return !d.data.exclude ? null : ("3, 3");})
-		.style("fill", "none")
-		// .style("filter", function (d) {
-		// 	if(d.data.sex==="M"){
-		// 		return "drop-shadow(3px 1px 1px #4444dd)";
-		// 	} else if (d.data.sex ==="F"){
-		// 		return "drop-shadow(3px 1px 1px #eb6c67)";
-		// 	} else return "none";
-		// 	})
-		// .style("filter", function (d) {
-		// 	if(d.data.sex==="M"){
-		// 		return "    drop-shadow(-1px -1px 0px #4444dd) drop-shadow(2px -1px 0px #4444dd)  drop-shadow(2px 2px 0px #4444dd) drop-shadow(-1px 2px 0px #4444dd)";
-		// 	} else if (d.data.sex ==="F"){
-		// 		return "drop-shadow(3px 1px 1px #eb6c67)";
-		// 	} else return "none";
-		// })
-		// .style("stroke", function (d) {
-		// 		if(d.data.sex==="M"){
-		// 			return "#4444dd";
-		// 		} else if (d.data.sex ==="F"){
-		// 			return "5px solid #eb6c67";
-		// 		} else return "none";
-		// });
+		.style("fill", "none");
 
 	// set a clippath
 	node.filter(function (d) {return !(d.data.hidden && !opts.DEBUG);})
@@ -314,7 +293,7 @@ export function build(options) {
             "Q" + (dx2 + 8) + "," + (dy1 - cshift) + " " + (dx2 + 28) + "," + (dy1 - cshift) +
             "L" + (dx2 + 40) + "," + (dy1 - cshift);
         
-        	j = k;
+			j = k;
 		}
 		return path;
 	}

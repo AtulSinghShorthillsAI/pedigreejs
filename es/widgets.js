@@ -409,8 +409,7 @@ function openEditDialog(opts, d) {
     autoOpen: false,
     title: d.data.display_name,
     modal: true,
-    width: $(window).width() > 800 ? 800 : $(window).width() - 30,
-
+    width: $(window).width() > 676 ? 676 : $(window).width() - 30,
     buttons: [
     {
         text: "Cancel",
@@ -471,48 +470,48 @@ function openEditDialog(opts, d) {
   
 
   let table =
-    "<table id='person_details' style='border-collapse: collapse; margin-left: 1rem; margin-right: 1rem; margin-top: 1.5rem; max-width: 700px' class='edit_table' width='100%' height='500' border='0'>";
+    "<table id='person_details' style='border-collapse: collapse; margin-top: 0.5rem; max-width: 600px !important' width='600px' class='edit_table' height='500px' border='0'>";
   table +=
-    "<tr><td style='padding-bottom: 1rem;'>Unique ID</td><td style='padding-bottom: 1rem;'><input class='form-control' type='text' id='id_name' name='name' value=" +
+    "<tr><td>Unique ID</td><td><input class='form-control' type='text' id='id_name' name='name' value=" +
     (d.data.name ? d.data.name : "") +
     "></td></tr>";
   table +=
     "<tr><td>First Name</td><td><input class='form-control' type='text' id='id_display_name' name='display_name' value=" +
     (d.data.display_name ? d.data.display_name : "") +
-    "></td><td style='padding-left: 8px'>Last Name</td><td><input class='form-control' style='padding-left: 8px; max-width: ' type='text' id='id_last_name' name='last_name' value=" +
+    "></td><td style='padding-left: 1.5rem;'>Last Name</td><td><input class='form-control' type='text' id='id_last_name' name='last_name' value=" +
     (d.data.last_name ? d.data.last_name : "") +
     "></td></tr>";
   table +=
-    "<tr><td>Year Of Birth</td><td><input class='form-control' type='number' id='id_yob' min='1900' max='2050' name='yob' style='width:7em' value=" +
+    "<tr><td>Year Of Birth</td><td><input class='form-control' type='number' id='id_yob' min='1900' max='2050' name='yob' style='width:7em !important;' value=" +
     (d.data.yob ? d.data.yob : "") +
-    "></td> <td>Age</td><td><input class='form-control' type='number' id='id_age' min='0' max='120' name='age' style='width:7em' value=" +
+    "></td><td style='padding-left: 1.5rem;'>Age</td><td><input class='form-control' type='number' id='id_age' min='0' max='120' name='age' style='width:7em !important;' value=" +
     (d.data.age ? d.data.age : "") +
     "></td></tr>";
   table +=
-    "<tr><td>Year Of Death</td><td><input class='form-control' type='number' id='id_yod' min='1900' max='2050' name='yod' style='width:7em' value=" +
+    "<tr><td>Year Of Death</td><td><input class='form-control' type='number' id='id_yod' min='1900' max='2050' name='yod' style='width:7em !important;' value=" +
     (d.data.yod ? d.data.yod : "") +
-    "></td><td>Age of death</td><td><input class='form-control' type='number' id='id_age_age_of_death' min='0' max='120' name='age_of_death' style='width:7em' value=" +
+    "></td><td style='padding-left: 1.5rem;'>Age of death</td><td><input class='form-control' type='number' id='id_age_age_of_death' min='0' max='120' name='age_of_death' style='width:7em !important;' value=" +
     (d.data.age_of_death ? d.data.age_of_death : "") +
     "></td></tr>";
   table +=
-    '<tr><td>Sex</td><td colspan="2" id="id_sex">' +
+    '<tr><td>Sex</td><td colspan="3" id="id_sex">' +
     '<label class="radio-inline" ><input type="radio" name="sex" value="M" ' +
     (d.data.sex === "M" ? "checked" : "") +
-    ' style="margin-right: 10px;">Male</label>' +
-    '<label class="radio-inline" style="margin-left: 5px" ><input type="radio" name="sex" value="F" ' +
+    ' style="padding-right: 1rem;">&thinsp;Male</label>' +
+    '<label class="radio-inline" style="margin-left: 0.5rem;" ><input type="radio" name="sex" value="F" ' +
     (d.data.sex === "F" ? "checked" : "") +
-    ' style="margin-right: 10px;">Female</label>' +
-    '<label class="radio-inline" style="margin-left: 5px; padding-right: 16px;"><input type="radio" name="sex" value="U" style="margin-right: 10px;">Unknown</label>' +
+    ' style="padding-right: 1rem">&thinsp;Female</label>' +
+    '<label class="radio-inline" style="margin-left: 0.5rem;"><input type="radio" name="sex" value="U" style="padding-left: 0.5rem; padding-right: 0.5rem;">&thinsp;Unknown</label>' +
     "</td></tr>";
   // alive status = 0; dead status = 1
   table +=
     '<tr><td>Individual is</td><td colspan="2" id="id_status">' +
     '<label class="checkbox-inline" ><input type="radio" name="status" value="0" ' +
     (parseInt(d.data.status) === 0 ? "checked" : "") +
-    ' style="margin-right: 10px;">&thinsp;Alive</label>' +
-    '<label class="checkbox-inline" style="margin-left: 5px;" ><input type="radio" name="status" value="1" ' +
+    ' style="padding-right: 1rem;">&thinsp;Alive</label>' +
+    '<label class="checkbox-inline" style="margin-left: 0.5rem;" ><input type="radio" name="status" value="1" ' +
     (parseInt(d.data.status) === 1 ? "checked" : "") +
-    ' style="margin-right: 10px; margin-left: 5px;">&thinsp;Deceased</label>' +
+    ' style="padding-right: 1rem; margin-left: 0.5rem;">&thinsp;Deceased</label>' +
     "</td></tr>";
   $("#id_status input[value='" + d.data.status + "']").prop("checked", true);
 
@@ -520,9 +519,8 @@ function openEditDialog(opts, d) {
   table +=
     "<tr><td><strong>Father</strong></td><td><input class='form-control' type='text' id='id_father' name='father' value='" +
     (d.data.father ? d.data.father : "") +
-    "'></td></tr>";
-  table +=
-    "<tr><td><strong>Mother</strong></td><td><input class='form-control' type='text' id='id_mother' name='mother' value='" +
+    "'></td>" + 
+    "<td style='padding-left: 1.5rem;'><strong>Mother</strong></td><td><input class='form-control' type='text' id='id_mother' name='mother' value='" +
     (d.data.mother ? d.data.mother : "") +
     "'></td></tr>";
   table +=
@@ -538,11 +536,11 @@ function openEditDialog(opts, d) {
     "Abortion",
   ];
   table +=
-    '<tr><td colspan="2"><strong>Reproduction:</strong></td></tr><tr><td colspan="2" >' +
+    '<tr><td colspan="2"><strong>Reproduction:</strong></td></tr><tr><td colspan="3" >' +
     switches
       .map(
         (attr, i) =>
-          (i === 2 || i === 4 ? '</td></tr><tr><td colspan="4">' : "") +
+          (i === 3 ? '</td></tr><tr><td colspan="4">' : "") +
           '<label class="checkbox-inline" style="display: inline-flex; align-items: center; white-space: nowrap; margin-right: 16px;""><input type="checkbox" id="id_' +
           attr +
           '" name="' +
