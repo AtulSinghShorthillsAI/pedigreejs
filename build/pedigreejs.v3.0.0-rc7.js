@@ -3735,10 +3735,12 @@ var pedigreejs = (function (exports) {
 	    if (opts.DEBUG) return ('display_name' in d.data ? d.data.display_name : d.data.name) + '  ' + d.data.id;
 	    return 'display_name' in d.data ? d.data.display_name : '';
 	  }, undefined, ['display_name']);
-	  addLabel(opts, node, -(0.4 * opts.symbol_size), -(0.1 * opts.symbol_size - 13), function (d) {
-	    if (opts.DEBUG) return ('last_name' in d.data ? d.data.last_name : d.data.name) + '  ' + d.data.id;
-	    return 'last_name' in d.data ? d.data.last_name : '';
-	  }, undefined, ['last_name']);
+
+	  // addLabel(opts, node, -(0.4 * opts.symbol_size), -((0.1 * opts.symbol_size)-13),
+	  // 	function(d) {
+	  // 	if(opts.DEBUG)
+	  // 		return ('last_name' in d.data ? d.data.last_name : d.data.name) + '  ' + d.data.id;
+	  // 		return 'last_name' in d.data ? d.data.last_name : '';}, undefined, ['last_name']);
 	  let font_size = parseInt(getPx(opts)) + 4;
 	  // display age/yob label first
 	  for (let ilab = 0; ilab < opts.labels.length; ilab++) {
@@ -3753,16 +3755,16 @@ var pedigreejs = (function (exports) {
 	    }
 	  }
 
-	  // individuals disease details
-	  for (let i = 0; i < opts.diseases.length; i++) {
-	    let disease = opts.diseases[i].type;
-	    addLabel(opts, node, -opts.symbol_size, function (d) {
-	      return ypos(d, [disease], font_size);
-	    }, function (d) {
-	      let dis = disease.replace('_', ' ').replace('cancer', 'ca.');
-	      return disease + '_diagnosis_age' in d.data ? dis + ": " + d.data[disease + '_diagnosis_age'] : '';
-	    }, 'indi_details', [disease]);
-	  }
+	  // // individuals disease details
+	  // for(let i=0;i<opts.diseases.length; i++) {
+	  // 	let disease = opts.diseases[i].type;
+	  // 	addLabel(opts, node, -opts.symbol_size,
+	  // 			function(d) { return ypos(d, [disease], font_size); },
+	  // 			function(d) {
+	  // 				let dis = disease.replace('_', ' ').replace('cancer', 'ca.');
+	  // 				return disease+'_diagnosis_age' in d.data ? dis +": "+ d.data[disease+'_diagnosis_age'] : '';
+	  // 			}, 'indi_details', [disease]);
+	  // }
 
 	  // display other labels defined in opts.labels e.g. alleles/genotype data
 	  for (let ilab = 0; ilab < opts.labels.length; ilab++) {
@@ -3802,6 +3804,13 @@ var pedigreejs = (function (exports) {
 	        let r = d.data[this_label].toUpperCase();
 	        txt += this_label.replace('_bc_pathology', '').toUpperCase();
 	        txt += r === 'P' ? '+ ' : r === 'N' ? '- ' : ' ';
+	      } else if (this_label === 'yob') {
+	        let ageIdx = arr.indexOf('age');
+	        if (ageIdx > -1) {
+	          if (!d.data['age']) txt += d.data[this_label];
+	        } else {
+	          txt += d.data[this_label];
+	        }
 	      } else {
 	        txt += d.data[this_label];
 	      }
@@ -3829,9 +3838,9 @@ var pedigreejs = (function (exports) {
 	  // .attr("x", fx)
 	  // .attr("y", fy)
 	  .attr("x", function () {
-	    return class_label === 'indi_details' ? fx + 30 : fx - 5;
+	    return class_label === 'indi_details' ? -20 : -20;
 	  }).attr("y", function () {
-	    return class_label === 'indi_details' ? 45 : fy + 35;
+	    return class_label === 'indi_details' ? 65 : 50;
 	  }).attr("font-family", opts.font_family)
 	  // .attr("font-size", opts.font_size)
 	  .attr("font-size", "0.80em").attr("font-weight", opts.font_weight).text(ftext);

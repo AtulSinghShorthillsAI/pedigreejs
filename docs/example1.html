@@ -83,6 +83,7 @@
       border: 1px solid black;
       border-radius: 2px;
       max-width: 144px;
+      padding-left: 0.3rem;
     }
     .ui-widget-content .text-area{
       border: 1px solid black;
@@ -156,14 +157,29 @@
       max-width: 300px !important;
     }
     .ui-dialog{
-      margin-top: 2rem;
-      margin-bottom: 2rem;
+      margin-top: 3rem;
+      margin-bottom: 3rem;
       top:0px !important;
     }
     .ui-dialog-content{
       max-height: 850px;
       overflow-y: scroll;
     }
+    @media screen and (max-height: 1076px) {
+      .ui-dialog{
+        font-size: 0.95em;
+        margin-bottom: 0px;
+      }
+      
+    } 
+    @media screen and (max-height: 1000px){
+      .ui-dialog{
+        font-size: 0.8em;
+        margin-bottom: 0px;
+      }
+      
+    }
+
   </style>
 
 <script type="text/javascript">
@@ -171,9 +187,9 @@
     var parent_width = $("#ped").parent().width();
     var margin = $(window).width() - parent_width > 10 ? 100 : 30;
     var svg_width = parent_width - margin;
-
+    var fileName = 'data_2.json';
     // Function to load the JSON dataset from a file
-    fetch('data_curve.json')
+    fetch(fileName)
       .then(response => response.json())
       .then(dataset => {
         // Now use the dynamically loaded dataset
@@ -185,7 +201,11 @@
           height: 720,
           symbol_size: 50,
           edit: true,
-          diseases: [{ type: "diabetes", colour: "#F68F35" }],
+          diseases: [
+        { type: "cancer", colour: "#81f635" },
+        { type: "diabetes", colour: "#f71212" },
+        { type: "asthma", colour: "#1760df" },
+      ],
           DEBUG:
             pedigreejs.pedigreejs_utils.urlParam("debug") === null
               ? false
