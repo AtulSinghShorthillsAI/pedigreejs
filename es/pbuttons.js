@@ -51,11 +51,17 @@ function addPbuttonEvents(opts) {
 		}
 		$(document).trigger('rebuild', [opts]);
 		setTimeout(function(){ scale_to_fit(opts); }, 500);
-    });
+
+		let personDetails = document.getElementById("person_details");
+		if (personDetails) {
+			personDetails.remove();
+		}
+	});
 
 	$('#fullscreen').on('click', function(_e) {
 		// toggle fullscreen
 		if (!is_fullscreen()) {
+
 			let target = $("#"+opts.targetDiv)[0];
 			if (target.requestFullscreen) {
                 target.requestFullscreen();
