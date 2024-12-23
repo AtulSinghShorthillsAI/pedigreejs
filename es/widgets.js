@@ -151,9 +151,9 @@ export function addWidgets(opts, node) {
 		.attr("rx", 6)
 		.attr("ry", 6)
 		.attr("x", function(_d) { return - 0.75*opts.symbol_size; })
-		.attr("y", function(_d) { return - opts.symbol_size; })
-		.attr("width",  (1.5 * opts.symbol_size)+'px')
-		.attr("height", (2 * opts.symbol_size)+'px')
+		.attr("y", function(_d) { return - opts.symbol_size-15; })
+		.attr("width",  ((1.5 * opts.symbol_size)+15)+'px')
+		.attr("height", ((2 * opts.symbol_size)+ 20 )+'px')
 		.style("stroke", "black")
 		.style("stroke-width", 0.7)
 		.style("opacity", 0)
@@ -165,8 +165,16 @@ export function addWidgets(opts, node) {
 	let off = 0;
 	let widgets = {
 		'addchild':   {'text': '\uf063', 'title': 'add child',   'fx': fx, 'fy': fy},
-		'addsibling': {'text': '\uf234', 'title': 'add sibling', 'fx': fx, 'fy': fy},
-		'addpartner': {'text': '\uf0c1', 'title': 'add partner', 'fx': fx, 'fy': fy},
+		'addsibling': 
+		{'text': '\uf234', 'title': 'add sibling', 
+			'fx': - 0.75*opts.symbol_size+28,
+			'fy': - opts.symbol_size + 100
+		},
+		'addpartner': 
+		{'text': '\uf0c1', 'title': 'add partner', 
+			'fx': - 0.75*opts.symbol_size+60,
+			'fy': - opts.symbol_size + 100
+		},
 		'addparents': {
 			'text': '\uf062', 'title': 'add parents',
 			'fx': - 0.75*opts.symbol_size,
@@ -191,6 +199,7 @@ export function addWidgets(opts, node) {
 						!(d.data.parent_node !== undefined && d.data.parent_node.length > 1 && key === 'addpartner') &&
 						!(d.data.parent_node === undefined && key === 'addchild') &&
 						!((d.data.noparents === undefined && d.data.top_level === undefined) && key === 'addparents');
+						!(d.data.nochild && key === 'delete')
 			})
 			.append("text")
 			.attr("class", key)
@@ -200,7 +209,7 @@ export function addWidgets(opts, node) {
 			.attr("yy", function(d){return d.y;})
 			.attr("x", widgets[key].fx)
 			.attr("y", widgets[key].fy)
-			.attr('font-size', '0.85em' )
+			.attr('font-size', '1.3em' )
 			.text(widgets[key].text);
 
 		if('styles' in widgets[key])
@@ -405,9 +414,11 @@ function capitaliseFirstLetter(string) {
 // if opt.edit is set true (rather than given a function) this is called to edit node attributes
 function openEditDialog(opts, d) {
   let changeFlag = false;
+  let cancelNo = true;
   $("#node_properties").dialog({
     autoOpen: false,
     title: d.data.display_name,
+	appendTo: "#ped",
     modal: true,
     width: $(window).width() > 676 ? 676 : $(window).width() - 30,
     buttons: [
@@ -416,6 +427,9 @@ function openEditDialog(opts, d) {
         class: "ui-cancel-button",
         click: function () {
 			handleCancelClose();
+			if(!cancelNo){
+				$("#person_details").remove();
+			}
 		}
 	},
 	{
@@ -423,6 +437,7 @@ function openEditDialog(opts, d) {
         class: "ui-save-button",
         click: function () {
           save(opts);
+		  $("#person_details").remove();
           $(this).dialog("close");
         },
       },
@@ -439,6 +454,7 @@ function openEditDialog(opts, d) {
 	  ).dialog({
 		modal: true,
 		title: "",
+		appendTo: "#ped",
 		minWidth: 350,
 		width: $("#node_properties").dialog("option", "width") * 0.67,
 		open: function () {
@@ -450,6 +466,7 @@ function openEditDialog(opts, d) {
 			text: "Yes",
 			class: "ui-yes-button",
 			click: function () {
+				cancelNo = false;
 			  $(this).dialog("close"); // Close confirmation dialog
 			  $("#node_properties").dialog("close"); // Close main dialog
 			},
@@ -458,12 +475,14 @@ function openEditDialog(opts, d) {
 			text: "No",
 			class: "ui-no-button",
 			click: function () {
+			cancelNo = true;
 			  $(this).dialog("close"); // Close confirmation dialog
 			},
 		  },
 		],
 	  });
 	} else {
+		cancelNo = false;
 	  $("#node_properties").dialog("close");
 	}
   }
